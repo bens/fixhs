@@ -42,7 +42,7 @@ library
   build-depends:    
                      base >= 3 && < 5, 
                      containers, MissingH, bytestring, attoparsec, 
-                     old-time, network, HaXml, deepseq, QuickCheck, 
+                     old-time, network, deepseq, QuickCheck,
                      parallel, text, dlist
   other-modules:     
                      Data.FIX.ParserCombinators
@@ -74,7 +74,7 @@ Executable fix-generator
   Main-is:           Utils/Generator.hs
   Build-Depends:     
                      base >= 3 && < 5, 
-                     HaXml, MissingH, old-time, dlist, attoparsec, 
+                     MissingH, old-time, dlist, attoparsec,
                      containers, QuickCheck, deepseq, text, bytestring
 
 source-repository head
@@ -107,5 +107,5 @@ test-suite properties
   main-is:           ../testsuite/tests/FIXParserTest.hs
   Build-Depends:     
                      base >= 3 && < 5, 
-                     HaXml, MissingH, old-time, dlist, attoparsec, 
+                     MissingH, old-time, dlist, attoparsec,
                      containers, QuickCheck, deepseq, text, bytestring
