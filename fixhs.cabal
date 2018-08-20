@@ -37,75 +37,58 @@ flag with-fix44
   description: add fix44 to the module. It takes a long time to compile!
   default: False
 
-library 
+library
   hs-source-dirs:    src/
-  build-depends:    
-                     base >= 3 && < 5, 
-                     containers, MissingH, bytestring, attoparsec, 
-                     old-time, network, deepseq, QuickCheck,
-                     parallel, text, dlist
-  other-modules:     
+  build-depends:
+                     MissingH    >= 1.4.0.1,
+                     QuickCheck  >= 2.11.3,
+                     attoparsec  >= 0.13.2.2,
+                     base        >= 3 && < 5,
+                     bytestring  >= 0.10.8.2,
+                     containers  >= 0.5.11.0,
+                     deepseq     >= 1.4.3.0,
+                     dlist       >= 0.8.0.4,
+                     text        >= 1.2.3.0,
+                     time        >= 1.8.0.2
+  other-modules:
                      Data.FIX.ParserCombinators
-  exposed-modules:   
-                     Data.LookupTable 
-                     Data.Coparser 
-                     Data.FIX.Arbitrary 
-                     Data.FIX.Common 
-                     Data.FIX.Coparser 
-                     Data.FIX.Parser 
-                     Data.FIX.Message 
-  ghc-options:       -Wall 
+  exposed-modules:
+                     Data.LookupTable
+                     Data.Coparser
+                     Data.FIX.Arbitrary
+                     Data.FIX.Common
+                     Data.FIX.Coparser
+                     Data.FIX.Parser
+                     Data.FIX.Message
+  ghc-options:       -Wall
   if flag(developer)
     ghc-prof-options: -auto-all
 
-  if flag(with-fix40) 
-   exposed-modules: Data.FIX.Spec.FIX40 
-  if flag(with-fix41) 
-   exposed-modules: Data.FIX.Spec.FIX41 
-  if flag(with-fix42) 
-   exposed-modules: Data.FIX.Spec.FIX42 
-  if flag(with-fix43) 
-   exposed-modules: Data.FIX.Spec.FIX43 
-  if flag(with-fix44) 
-   exposed-modules: Data.FIX.Spec.FIX44 
-
-Executable fix-generator
-  hs-source-dirs:    src/
-  Main-is:           Utils/Generator.hs
-  Build-Depends:     
-                     base >= 3 && < 5, 
-                     MissingH, old-time, dlist, attoparsec,
-                     containers, QuickCheck, deepseq, text, bytestring
+  if flag(with-fix40)
+   exposed-modules: Data.FIX.Spec.FIX40
+  if flag(with-fix41)
+   exposed-modules: Data.FIX.Spec.FIX41
+  if flag(with-fix42)
+   exposed-modules: Data.FIX.Spec.FIX42
+  if flag(with-fix43)
+   exposed-modules: Data.FIX.Spec.FIX43
+  if flag(with-fix44)
+   exposed-modules: Data.FIX.Spec.FIX44
 
 source-repository head
   type:     git
   location: http://github.com/urv/fixhs
 
 
-test-suite properties
-  hs-source-dirs:    src/ 
-  type:              exitcode-stdio-1.0
-  other-modules:     
-                     Data.FIX.ParserCombinators
-                     Data.LookupTable 
-                     Data.Coparser 
-                     Data.FIX.Arbitrary 
-                     Data.FIX.Common 
-                     Data.FIX.Coparser 
-                     Data.FIX.Parser 
-                     Data.FIX.Message 
-  if flag(with-fix40) 
-   other-modules: Data.FIX.Spec.FIX40 
-  if flag(with-fix41) 
-   other-modules: Data.FIX.Spec.FIX41 
-  if flag(with-fix42) 
-   other-modules: Data.FIX.Spec.FIX42 
-  if flag(with-fix43) 
-   other-modules: Data.FIX.Spec.FIX43 
-  if flag(with-fix44) 
-   other-modules: Data.FIX.Spec.FIX44 
-  main-is:           ../testsuite/tests/FIXParserTest.hs
-  Build-Depends:     
-                     base >= 3 && < 5, 
-                     MissingH, old-time, dlist, attoparsec,
-                     containers, QuickCheck, deepseq, text, bytestring
+benchmark bench
+  type:       exitcode-stdio-1.0
+  main-is:    testsuite/benchmarks/Benchmark.hs
+  build-depends: fixhs,
+                 QuickCheck,
+                 attoparsec,
+                 base,
+                 bytestring,
+                 deepseq,
+                 dlist,
+                 gauge,
+                 time

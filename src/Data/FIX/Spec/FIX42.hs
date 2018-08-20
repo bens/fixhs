@@ -1,2790 +1,2790 @@
 -- Module  : Data.FIX.Spec.FIX42
--- License : LGPL-2.1 
+-- License : LGPL-2.1
 
 module Data.FIX.Spec.FIX42 ( fix42 ) where
+
 import qualified Data.ByteString.Char8 as C
 import qualified Data.LookupTable as LT ( new, insert )
 import Data.FIX.Message
 import Data.FIX.Parser
 import Data.Functor ( (<$>) )
-import Data.FIX.Arbitrary 
-import Test.QuickCheck ( arbitrary )
-
+import Data.FIX.Arbitrary
+import Test.QuickCheck
 
 tAccount :: FIXTag
-tAccount = FIXTag 
+tAccount = FIXTag
    { tName = "Account"
    , tnum = 1
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tAdvId :: FIXTag
-tAdvId = FIXTag 
+tAdvId = FIXTag
    { tName = "AdvId"
    , tnum = 2
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tAdvRefID :: FIXTag
-tAdvRefID = FIXTag 
+tAdvRefID = FIXTag
    { tName = "AdvRefID"
    , tnum = 3
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tAdvSide :: FIXTag
-tAdvSide = FIXTag 
+tAdvSide = FIXTag
    { tName = "AdvSide"
    , tnum = 4
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tAdvTransType :: FIXTag
-tAdvTransType = FIXTag 
+tAdvTransType = FIXTag
    { tName = "AdvTransType"
    , tnum = 5
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tAvgPx :: FIXTag
-tAvgPx = FIXTag 
+tAvgPx = FIXTag
    { tName = "AvgPx"
    , tnum = 6
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tBeginSeqNo :: FIXTag
-tBeginSeqNo = FIXTag 
+tBeginSeqNo = FIXTag
    { tName = "BeginSeqNo"
    , tnum = 7
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tClOrdID :: FIXTag
-tClOrdID = FIXTag 
+tClOrdID = FIXTag
    { tName = "ClOrdID"
    , tnum = 11
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tCommission :: FIXTag
-tCommission = FIXTag 
+tCommission = FIXTag
    { tName = "Commission"
    , tnum = 12
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tCommType :: FIXTag
-tCommType = FIXTag 
+tCommType = FIXTag
    { tName = "CommType"
    , tnum = 13
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tCumQty :: FIXTag
-tCumQty = FIXTag 
+tCumQty = FIXTag
    { tName = "CumQty"
    , tnum = 14
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tCurrency :: FIXTag
-tCurrency = FIXTag 
+tCurrency = FIXTag
    { tName = "Currency"
    , tnum = 15
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tEndSeqNo :: FIXTag
-tEndSeqNo = FIXTag 
+tEndSeqNo = FIXTag
    { tName = "EndSeqNo"
    , tnum = 16
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tExecID :: FIXTag
-tExecID = FIXTag 
+tExecID = FIXTag
    { tName = "ExecID"
    , tnum = 17
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tExecInst :: FIXTag
-tExecInst = FIXTag 
+tExecInst = FIXTag
    { tName = "ExecInst"
    , tnum = 18
    , tparser = toFIXMultipleValueString
-   , arbitraryValue = FIXMultipleValueString <$> arbitrary }
+   , arbitraryValue = FIXMultipleValueString <$> arbitraryByteString }
 
 tExecRefID :: FIXTag
-tExecRefID = FIXTag 
+tExecRefID = FIXTag
    { tName = "ExecRefID"
    , tnum = 19
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tExecTransType :: FIXTag
-tExecTransType = FIXTag 
+tExecTransType = FIXTag
    { tName = "ExecTransType"
    , tnum = 20
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tHandlInst :: FIXTag
-tHandlInst = FIXTag 
+tHandlInst = FIXTag
    { tName = "HandlInst"
    , tnum = 21
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tIDSource :: FIXTag
-tIDSource = FIXTag 
+tIDSource = FIXTag
    { tName = "IDSource"
    , tnum = 22
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tIOIid :: FIXTag
-tIOIid = FIXTag 
+tIOIid = FIXTag
    { tName = "IOIid"
    , tnum = 23
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tIOIQltyInd :: FIXTag
-tIOIQltyInd = FIXTag 
+tIOIQltyInd = FIXTag
    { tName = "IOIQltyInd"
    , tnum = 25
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tIOIRefID :: FIXTag
-tIOIRefID = FIXTag 
+tIOIRefID = FIXTag
    { tName = "IOIRefID"
    , tnum = 26
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tIOIShares :: FIXTag
-tIOIShares = FIXTag 
+tIOIShares = FIXTag
    { tName = "IOIShares"
    , tnum = 27
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tIOITransType :: FIXTag
-tIOITransType = FIXTag 
+tIOITransType = FIXTag
    { tName = "IOITransType"
    , tnum = 28
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tLastCapacity :: FIXTag
-tLastCapacity = FIXTag 
+tLastCapacity = FIXTag
    { tName = "LastCapacity"
    , tnum = 29
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tLastMkt :: FIXTag
-tLastMkt = FIXTag 
+tLastMkt = FIXTag
    { tName = "LastMkt"
    , tnum = 30
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tLastPx :: FIXTag
-tLastPx = FIXTag 
+tLastPx = FIXTag
    { tName = "LastPx"
    , tnum = 31
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tLastShares :: FIXTag
-tLastShares = FIXTag 
+tLastShares = FIXTag
    { tName = "LastShares"
    , tnum = 32
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tLinesOfText :: FIXTag
-tLinesOfText = FIXTag 
+tLinesOfText = FIXTag
    { tName = "LinesOfText"
    , tnum = 33
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tMsgSeqNum :: FIXTag
-tMsgSeqNum = FIXTag 
+tMsgSeqNum = FIXTag
    { tName = "MsgSeqNum"
    , tnum = 34
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tNewSeqNo :: FIXTag
-tNewSeqNo = FIXTag 
+tNewSeqNo = FIXTag
    { tName = "NewSeqNo"
    , tnum = 36
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tOrderID :: FIXTag
-tOrderID = FIXTag 
+tOrderID = FIXTag
    { tName = "OrderID"
    , tnum = 37
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tOrderQty :: FIXTag
-tOrderQty = FIXTag 
+tOrderQty = FIXTag
    { tName = "OrderQty"
    , tnum = 38
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tOrdStatus :: FIXTag
-tOrdStatus = FIXTag 
+tOrdStatus = FIXTag
    { tName = "OrdStatus"
    , tnum = 39
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tOrdType :: FIXTag
-tOrdType = FIXTag 
+tOrdType = FIXTag
    { tName = "OrdType"
    , tnum = 40
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tOrigClOrdID :: FIXTag
-tOrigClOrdID = FIXTag 
+tOrigClOrdID = FIXTag
    { tName = "OrigClOrdID"
    , tnum = 41
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tOrigTime :: FIXTag
-tOrigTime = FIXTag 
+tOrigTime = FIXTag
    { tName = "OrigTime"
    , tnum = 42
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tPossDupFlag :: FIXTag
-tPossDupFlag = FIXTag 
+tPossDupFlag = FIXTag
    { tName = "PossDupFlag"
    , tnum = 43
    , tparser = toFIXBool
    , arbitraryValue = FIXBool <$> arbitrary }
 
 tPrice :: FIXTag
-tPrice = FIXTag 
+tPrice = FIXTag
    { tName = "Price"
    , tnum = 44
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tRefSeqNum :: FIXTag
-tRefSeqNum = FIXTag 
+tRefSeqNum = FIXTag
    { tName = "RefSeqNum"
    , tnum = 45
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tRelatdSym :: FIXTag
-tRelatdSym = FIXTag 
+tRelatdSym = FIXTag
    { tName = "RelatdSym"
    , tnum = 46
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tRule80A :: FIXTag
-tRule80A = FIXTag 
+tRule80A = FIXTag
    { tName = "Rule80A"
    , tnum = 47
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tSecurityID :: FIXTag
-tSecurityID = FIXTag 
+tSecurityID = FIXTag
    { tName = "SecurityID"
    , tnum = 48
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSenderCompID :: FIXTag
-tSenderCompID = FIXTag 
+tSenderCompID = FIXTag
    { tName = "SenderCompID"
    , tnum = 49
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSenderSubID :: FIXTag
-tSenderSubID = FIXTag 
+tSenderSubID = FIXTag
    { tName = "SenderSubID"
    , tnum = 50
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSendingTime :: FIXTag
-tSendingTime = FIXTag 
+tSendingTime = FIXTag
    { tName = "SendingTime"
    , tnum = 52
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tShares :: FIXTag
-tShares = FIXTag 
+tShares = FIXTag
    { tName = "Shares"
    , tnum = 53
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tSide :: FIXTag
-tSide = FIXTag 
+tSide = FIXTag
    { tName = "Side"
    , tnum = 54
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tSymbol :: FIXTag
-tSymbol = FIXTag 
+tSymbol = FIXTag
    { tName = "Symbol"
    , tnum = 55
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tTargetCompID :: FIXTag
-tTargetCompID = FIXTag 
+tTargetCompID = FIXTag
    { tName = "TargetCompID"
    , tnum = 56
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tTargetSubID :: FIXTag
-tTargetSubID = FIXTag 
+tTargetSubID = FIXTag
    { tName = "TargetSubID"
    , tnum = 57
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tText :: FIXTag
-tText = FIXTag 
+tText = FIXTag
    { tName = "Text"
    , tnum = 58
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tTimeInForce :: FIXTag
-tTimeInForce = FIXTag 
+tTimeInForce = FIXTag
    { tName = "TimeInForce"
    , tnum = 59
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tTransactTime :: FIXTag
-tTransactTime = FIXTag 
+tTransactTime = FIXTag
    { tName = "TransactTime"
    , tnum = 60
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tUrgency :: FIXTag
-tUrgency = FIXTag 
+tUrgency = FIXTag
    { tName = "Urgency"
    , tnum = 61
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tValidUntilTime :: FIXTag
-tValidUntilTime = FIXTag 
+tValidUntilTime = FIXTag
    { tName = "ValidUntilTime"
    , tnum = 62
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tSettlmntTyp :: FIXTag
-tSettlmntTyp = FIXTag 
+tSettlmntTyp = FIXTag
    { tName = "SettlmntTyp"
    , tnum = 63
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tFutSettDate :: FIXTag
-tFutSettDate = FIXTag 
+tFutSettDate = FIXTag
    { tName = "FutSettDate"
    , tnum = 64
    , tparser = toFIXDateOnly
-   , arbitraryValue = FIXDateOnly <$> arbitrary }
+   , arbitraryValue = FIXDateOnly <$> arbitraryDay }
 
 tSymbolSfx :: FIXTag
-tSymbolSfx = FIXTag 
+tSymbolSfx = FIXTag
    { tName = "SymbolSfx"
    , tnum = 65
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tListID :: FIXTag
-tListID = FIXTag 
+tListID = FIXTag
    { tName = "ListID"
    , tnum = 66
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tListSeqNo :: FIXTag
-tListSeqNo = FIXTag 
+tListSeqNo = FIXTag
    { tName = "ListSeqNo"
    , tnum = 67
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tTotNoOrders :: FIXTag
-tTotNoOrders = FIXTag 
+tTotNoOrders = FIXTag
    { tName = "TotNoOrders"
    , tnum = 68
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tListExecInst :: FIXTag
-tListExecInst = FIXTag 
+tListExecInst = FIXTag
    { tName = "ListExecInst"
    , tnum = 69
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tAllocID :: FIXTag
-tAllocID = FIXTag 
+tAllocID = FIXTag
    { tName = "AllocID"
    , tnum = 70
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tAllocTransType :: FIXTag
-tAllocTransType = FIXTag 
+tAllocTransType = FIXTag
    { tName = "AllocTransType"
    , tnum = 71
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tRefAllocID :: FIXTag
-tRefAllocID = FIXTag 
+tRefAllocID = FIXTag
    { tName = "RefAllocID"
    , tnum = 72
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tNoOrders :: FIXTag
-tNoOrders = FIXTag 
+tNoOrders = FIXTag
    { tName = "NoOrders"
    , tnum = 73
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tAvgPrxPrecision :: FIXTag
-tAvgPrxPrecision = FIXTag 
+tAvgPrxPrecision = FIXTag
    { tName = "AvgPrxPrecision"
    , tnum = 74
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tTradeDate :: FIXTag
-tTradeDate = FIXTag 
+tTradeDate = FIXTag
    { tName = "TradeDate"
    , tnum = 75
    , tparser = toFIXDateOnly
-   , arbitraryValue = FIXDateOnly <$> arbitrary }
+   , arbitraryValue = FIXDateOnly <$> arbitraryDay }
 
 tExecBroker :: FIXTag
-tExecBroker = FIXTag 
+tExecBroker = FIXTag
    { tName = "ExecBroker"
    , tnum = 76
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tOpenClose :: FIXTag
-tOpenClose = FIXTag 
+tOpenClose = FIXTag
    { tName = "OpenClose"
    , tnum = 77
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tNoAllocs :: FIXTag
-tNoAllocs = FIXTag 
+tNoAllocs = FIXTag
    { tName = "NoAllocs"
    , tnum = 78
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tAllocAccount :: FIXTag
-tAllocAccount = FIXTag 
+tAllocAccount = FIXTag
    { tName = "AllocAccount"
    , tnum = 79
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tAllocShares :: FIXTag
-tAllocShares = FIXTag 
+tAllocShares = FIXTag
    { tName = "AllocShares"
    , tnum = 80
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tProcessCode :: FIXTag
-tProcessCode = FIXTag 
+tProcessCode = FIXTag
    { tName = "ProcessCode"
    , tnum = 81
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tNoRpts :: FIXTag
-tNoRpts = FIXTag 
+tNoRpts = FIXTag
    { tName = "NoRpts"
    , tnum = 82
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tRptSeq :: FIXTag
-tRptSeq = FIXTag 
+tRptSeq = FIXTag
    { tName = "RptSeq"
    , tnum = 83
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tCxlQty :: FIXTag
-tCxlQty = FIXTag 
+tCxlQty = FIXTag
    { tName = "CxlQty"
    , tnum = 84
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tAllocStatus :: FIXTag
-tAllocStatus = FIXTag 
+tAllocStatus = FIXTag
    { tName = "AllocStatus"
    , tnum = 87
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tAllocRejCode :: FIXTag
-tAllocRejCode = FIXTag 
+tAllocRejCode = FIXTag
    { tName = "AllocRejCode"
    , tnum = 88
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tSignature :: FIXTag
-tSignature = FIXTag 
+tSignature = FIXTag
    { tName = "Signature"
    , tnum = 89
    , tparser = toFIXData
-   , arbitraryValue = FIXData <$> arbitrary }
+   , arbitraryValue = FIXData <$> arbitraryByteString }
 
 tSecureDataLen :: FIXTag
-tSecureDataLen = FIXTag 
+tSecureDataLen = FIXTag
    { tName = "SecureDataLen"
    , tnum = 90
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tSecureData :: FIXTag
-tSecureData = FIXTag 
+tSecureData = FIXTag
    { tName = "SecureData"
    , tnum = 91
    , tparser = toFIXData
-   , arbitraryValue = FIXData <$> arbitrary }
+   , arbitraryValue = FIXData <$> arbitraryByteString }
 
 tBrokerOfCredit :: FIXTag
-tBrokerOfCredit = FIXTag 
+tBrokerOfCredit = FIXTag
    { tName = "BrokerOfCredit"
    , tnum = 92
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSignatureLength :: FIXTag
-tSignatureLength = FIXTag 
+tSignatureLength = FIXTag
    { tName = "SignatureLength"
    , tnum = 93
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tEmailType :: FIXTag
-tEmailType = FIXTag 
+tEmailType = FIXTag
    { tName = "EmailType"
    , tnum = 94
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tRawDataLength :: FIXTag
-tRawDataLength = FIXTag 
+tRawDataLength = FIXTag
    { tName = "RawDataLength"
    , tnum = 95
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tRawData :: FIXTag
-tRawData = FIXTag 
+tRawData = FIXTag
    { tName = "RawData"
    , tnum = 96
    , tparser = toFIXData
-   , arbitraryValue = FIXData <$> arbitrary }
+   , arbitraryValue = FIXData <$> arbitraryByteString }
 
 tPossResend :: FIXTag
-tPossResend = FIXTag 
+tPossResend = FIXTag
    { tName = "PossResend"
    , tnum = 97
    , tparser = toFIXBool
    , arbitraryValue = FIXBool <$> arbitrary }
 
 tEncryptMethod :: FIXTag
-tEncryptMethod = FIXTag 
+tEncryptMethod = FIXTag
    { tName = "EncryptMethod"
    , tnum = 98
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tStopPx :: FIXTag
-tStopPx = FIXTag 
+tStopPx = FIXTag
    { tName = "StopPx"
    , tnum = 99
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tExDestination :: FIXTag
-tExDestination = FIXTag 
+tExDestination = FIXTag
    { tName = "ExDestination"
    , tnum = 100
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tCxlRejReason :: FIXTag
-tCxlRejReason = FIXTag 
+tCxlRejReason = FIXTag
    { tName = "CxlRejReason"
    , tnum = 102
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tOrdRejReason :: FIXTag
-tOrdRejReason = FIXTag 
+tOrdRejReason = FIXTag
    { tName = "OrdRejReason"
    , tnum = 103
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tIOIQualifier :: FIXTag
-tIOIQualifier = FIXTag 
+tIOIQualifier = FIXTag
    { tName = "IOIQualifier"
    , tnum = 104
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tWaveNo :: FIXTag
-tWaveNo = FIXTag 
+tWaveNo = FIXTag
    { tName = "WaveNo"
    , tnum = 105
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tIssuer :: FIXTag
-tIssuer = FIXTag 
+tIssuer = FIXTag
    { tName = "Issuer"
    , tnum = 106
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSecurityDesc :: FIXTag
-tSecurityDesc = FIXTag 
+tSecurityDesc = FIXTag
    { tName = "SecurityDesc"
    , tnum = 107
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tHeartBtInt :: FIXTag
-tHeartBtInt = FIXTag 
+tHeartBtInt = FIXTag
    { tName = "HeartBtInt"
    , tnum = 108
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tClientID :: FIXTag
-tClientID = FIXTag 
+tClientID = FIXTag
    { tName = "ClientID"
    , tnum = 109
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tMinQty :: FIXTag
-tMinQty = FIXTag 
+tMinQty = FIXTag
    { tName = "MinQty"
    , tnum = 110
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tMaxFloor :: FIXTag
-tMaxFloor = FIXTag 
+tMaxFloor = FIXTag
    { tName = "MaxFloor"
    , tnum = 111
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tTestReqID :: FIXTag
-tTestReqID = FIXTag 
+tTestReqID = FIXTag
    { tName = "TestReqID"
    , tnum = 112
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tReportToExch :: FIXTag
-tReportToExch = FIXTag 
+tReportToExch = FIXTag
    { tName = "ReportToExch"
    , tnum = 113
    , tparser = toFIXBool
    , arbitraryValue = FIXBool <$> arbitrary }
 
 tLocateReqd :: FIXTag
-tLocateReqd = FIXTag 
+tLocateReqd = FIXTag
    { tName = "LocateReqd"
    , tnum = 114
    , tparser = toFIXBool
    , arbitraryValue = FIXBool <$> arbitrary }
 
 tOnBehalfOfCompID :: FIXTag
-tOnBehalfOfCompID = FIXTag 
+tOnBehalfOfCompID = FIXTag
    { tName = "OnBehalfOfCompID"
    , tnum = 115
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tOnBehalfOfSubID :: FIXTag
-tOnBehalfOfSubID = FIXTag 
+tOnBehalfOfSubID = FIXTag
    { tName = "OnBehalfOfSubID"
    , tnum = 116
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tQuoteID :: FIXTag
-tQuoteID = FIXTag 
+tQuoteID = FIXTag
    { tName = "QuoteID"
    , tnum = 117
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tNetMoney :: FIXTag
-tNetMoney = FIXTag 
+tNetMoney = FIXTag
    { tName = "NetMoney"
    , tnum = 118
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tSettlCurrAmt :: FIXTag
-tSettlCurrAmt = FIXTag 
+tSettlCurrAmt = FIXTag
    { tName = "SettlCurrAmt"
    , tnum = 119
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tSettlCurrency :: FIXTag
-tSettlCurrency = FIXTag 
+tSettlCurrency = FIXTag
    { tName = "SettlCurrency"
    , tnum = 120
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tForexReq :: FIXTag
-tForexReq = FIXTag 
+tForexReq = FIXTag
    { tName = "ForexReq"
    , tnum = 121
    , tparser = toFIXBool
    , arbitraryValue = FIXBool <$> arbitrary }
 
 tOrigSendingTime :: FIXTag
-tOrigSendingTime = FIXTag 
+tOrigSendingTime = FIXTag
    { tName = "OrigSendingTime"
    , tnum = 122
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tGapFillFlag :: FIXTag
-tGapFillFlag = FIXTag 
+tGapFillFlag = FIXTag
    { tName = "GapFillFlag"
    , tnum = 123
    , tparser = toFIXBool
    , arbitraryValue = FIXBool <$> arbitrary }
 
 tNoExecs :: FIXTag
-tNoExecs = FIXTag 
+tNoExecs = FIXTag
    { tName = "NoExecs"
    , tnum = 124
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tExpireTime :: FIXTag
-tExpireTime = FIXTag 
+tExpireTime = FIXTag
    { tName = "ExpireTime"
    , tnum = 126
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tDKReason :: FIXTag
-tDKReason = FIXTag 
+tDKReason = FIXTag
    { tName = "DKReason"
    , tnum = 127
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tDeliverToCompID :: FIXTag
-tDeliverToCompID = FIXTag 
+tDeliverToCompID = FIXTag
    { tName = "DeliverToCompID"
    , tnum = 128
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tDeliverToSubID :: FIXTag
-tDeliverToSubID = FIXTag 
+tDeliverToSubID = FIXTag
    { tName = "DeliverToSubID"
    , tnum = 129
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tIOINaturalFlag :: FIXTag
-tIOINaturalFlag = FIXTag 
+tIOINaturalFlag = FIXTag
    { tName = "IOINaturalFlag"
    , tnum = 130
    , tparser = toFIXBool
    , arbitraryValue = FIXBool <$> arbitrary }
 
 tQuoteReqID :: FIXTag
-tQuoteReqID = FIXTag 
+tQuoteReqID = FIXTag
    { tName = "QuoteReqID"
    , tnum = 131
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tBidPx :: FIXTag
-tBidPx = FIXTag 
+tBidPx = FIXTag
    { tName = "BidPx"
    , tnum = 132
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tOfferPx :: FIXTag
-tOfferPx = FIXTag 
+tOfferPx = FIXTag
    { tName = "OfferPx"
    , tnum = 133
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tBidSize :: FIXTag
-tBidSize = FIXTag 
+tBidSize = FIXTag
    { tName = "BidSize"
    , tnum = 134
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tOfferSize :: FIXTag
-tOfferSize = FIXTag 
+tOfferSize = FIXTag
    { tName = "OfferSize"
    , tnum = 135
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tNoMiscFees :: FIXTag
-tNoMiscFees = FIXTag 
+tNoMiscFees = FIXTag
    { tName = "NoMiscFees"
    , tnum = 136
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tMiscFeeAmt :: FIXTag
-tMiscFeeAmt = FIXTag 
+tMiscFeeAmt = FIXTag
    { tName = "MiscFeeAmt"
    , tnum = 137
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tMiscFeeCurr :: FIXTag
-tMiscFeeCurr = FIXTag 
+tMiscFeeCurr = FIXTag
    { tName = "MiscFeeCurr"
    , tnum = 138
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tMiscFeeType :: FIXTag
-tMiscFeeType = FIXTag 
+tMiscFeeType = FIXTag
    { tName = "MiscFeeType"
    , tnum = 139
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tPrevClosePx :: FIXTag
-tPrevClosePx = FIXTag 
+tPrevClosePx = FIXTag
    { tName = "PrevClosePx"
    , tnum = 140
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tResetSeqNumFlag :: FIXTag
-tResetSeqNumFlag = FIXTag 
+tResetSeqNumFlag = FIXTag
    { tName = "ResetSeqNumFlag"
    , tnum = 141
    , tparser = toFIXBool
    , arbitraryValue = FIXBool <$> arbitrary }
 
 tSenderLocationID :: FIXTag
-tSenderLocationID = FIXTag 
+tSenderLocationID = FIXTag
    { tName = "SenderLocationID"
    , tnum = 142
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tTargetLocationID :: FIXTag
-tTargetLocationID = FIXTag 
+tTargetLocationID = FIXTag
    { tName = "TargetLocationID"
    , tnum = 143
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tOnBehalfOfLocationID :: FIXTag
-tOnBehalfOfLocationID = FIXTag 
+tOnBehalfOfLocationID = FIXTag
    { tName = "OnBehalfOfLocationID"
    , tnum = 144
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tDeliverToLocationID :: FIXTag
-tDeliverToLocationID = FIXTag 
+tDeliverToLocationID = FIXTag
    { tName = "DeliverToLocationID"
    , tnum = 145
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tNoRelatedSym :: FIXTag
-tNoRelatedSym = FIXTag 
+tNoRelatedSym = FIXTag
    { tName = "NoRelatedSym"
    , tnum = 146
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tSubject :: FIXTag
-tSubject = FIXTag 
+tSubject = FIXTag
    { tName = "Subject"
    , tnum = 147
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tHeadline :: FIXTag
-tHeadline = FIXTag 
+tHeadline = FIXTag
    { tName = "Headline"
    , tnum = 148
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tURLLink :: FIXTag
-tURLLink = FIXTag 
+tURLLink = FIXTag
    { tName = "URLLink"
    , tnum = 149
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tExecType :: FIXTag
-tExecType = FIXTag 
+tExecType = FIXTag
    { tName = "ExecType"
    , tnum = 150
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tLeavesQty :: FIXTag
-tLeavesQty = FIXTag 
+tLeavesQty = FIXTag
    { tName = "LeavesQty"
    , tnum = 151
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tCashOrderQty :: FIXTag
-tCashOrderQty = FIXTag 
+tCashOrderQty = FIXTag
    { tName = "CashOrderQty"
    , tnum = 152
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tAllocAvgPx :: FIXTag
-tAllocAvgPx = FIXTag 
+tAllocAvgPx = FIXTag
    { tName = "AllocAvgPx"
    , tnum = 153
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tAllocNetMoney :: FIXTag
-tAllocNetMoney = FIXTag 
+tAllocNetMoney = FIXTag
    { tName = "AllocNetMoney"
    , tnum = 154
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tSettlCurrFxRate :: FIXTag
-tSettlCurrFxRate = FIXTag 
+tSettlCurrFxRate = FIXTag
    { tName = "SettlCurrFxRate"
    , tnum = 155
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tSettlCurrFxRateCalc :: FIXTag
-tSettlCurrFxRateCalc = FIXTag 
+tSettlCurrFxRateCalc = FIXTag
    { tName = "SettlCurrFxRateCalc"
    , tnum = 156
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tNumDaysInterest :: FIXTag
-tNumDaysInterest = FIXTag 
+tNumDaysInterest = FIXTag
    { tName = "NumDaysInterest"
    , tnum = 157
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tAccruedInterestRate :: FIXTag
-tAccruedInterestRate = FIXTag 
+tAccruedInterestRate = FIXTag
    { tName = "AccruedInterestRate"
    , tnum = 158
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tAccruedInterestAmt :: FIXTag
-tAccruedInterestAmt = FIXTag 
+tAccruedInterestAmt = FIXTag
    { tName = "AccruedInterestAmt"
    , tnum = 159
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tSettlInstMode :: FIXTag
-tSettlInstMode = FIXTag 
+tSettlInstMode = FIXTag
    { tName = "SettlInstMode"
    , tnum = 160
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tAllocText :: FIXTag
-tAllocText = FIXTag 
+tAllocText = FIXTag
    { tName = "AllocText"
    , tnum = 161
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSettlInstID :: FIXTag
-tSettlInstID = FIXTag 
+tSettlInstID = FIXTag
    { tName = "SettlInstID"
    , tnum = 162
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSettlInstTransType :: FIXTag
-tSettlInstTransType = FIXTag 
+tSettlInstTransType = FIXTag
    { tName = "SettlInstTransType"
    , tnum = 163
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tEmailThreadID :: FIXTag
-tEmailThreadID = FIXTag 
+tEmailThreadID = FIXTag
    { tName = "EmailThreadID"
    , tnum = 164
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSettlInstSource :: FIXTag
-tSettlInstSource = FIXTag 
+tSettlInstSource = FIXTag
    { tName = "SettlInstSource"
    , tnum = 165
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tSettlLocation :: FIXTag
-tSettlLocation = FIXTag 
+tSettlLocation = FIXTag
    { tName = "SettlLocation"
    , tnum = 166
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSecurityType :: FIXTag
-tSecurityType = FIXTag 
+tSecurityType = FIXTag
    { tName = "SecurityType"
    , tnum = 167
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tEffectiveTime :: FIXTag
-tEffectiveTime = FIXTag 
+tEffectiveTime = FIXTag
    { tName = "EffectiveTime"
    , tnum = 168
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tStandInstDbType :: FIXTag
-tStandInstDbType = FIXTag 
+tStandInstDbType = FIXTag
    { tName = "StandInstDbType"
    , tnum = 169
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tStandInstDbName :: FIXTag
-tStandInstDbName = FIXTag 
+tStandInstDbName = FIXTag
    { tName = "StandInstDbName"
    , tnum = 170
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tStandInstDbID :: FIXTag
-tStandInstDbID = FIXTag 
+tStandInstDbID = FIXTag
    { tName = "StandInstDbID"
    , tnum = 171
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSettlDeliveryType :: FIXTag
-tSettlDeliveryType = FIXTag 
+tSettlDeliveryType = FIXTag
    { tName = "SettlDeliveryType"
    , tnum = 172
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tSettlDepositoryCode :: FIXTag
-tSettlDepositoryCode = FIXTag 
+tSettlDepositoryCode = FIXTag
    { tName = "SettlDepositoryCode"
    , tnum = 173
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSettlBrkrCode :: FIXTag
-tSettlBrkrCode = FIXTag 
+tSettlBrkrCode = FIXTag
    { tName = "SettlBrkrCode"
    , tnum = 174
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSettlInstCode :: FIXTag
-tSettlInstCode = FIXTag 
+tSettlInstCode = FIXTag
    { tName = "SettlInstCode"
    , tnum = 175
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSecuritySettlAgentName :: FIXTag
-tSecuritySettlAgentName = FIXTag 
+tSecuritySettlAgentName = FIXTag
    { tName = "SecuritySettlAgentName"
    , tnum = 176
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSecuritySettlAgentCode :: FIXTag
-tSecuritySettlAgentCode = FIXTag 
+tSecuritySettlAgentCode = FIXTag
    { tName = "SecuritySettlAgentCode"
    , tnum = 177
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSecuritySettlAgentAcctNum :: FIXTag
-tSecuritySettlAgentAcctNum = FIXTag 
+tSecuritySettlAgentAcctNum = FIXTag
    { tName = "SecuritySettlAgentAcctNum"
    , tnum = 178
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSecuritySettlAgentAcctName :: FIXTag
-tSecuritySettlAgentAcctName = FIXTag 
+tSecuritySettlAgentAcctName = FIXTag
    { tName = "SecuritySettlAgentAcctName"
    , tnum = 179
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSecuritySettlAgentContactName :: FIXTag
-tSecuritySettlAgentContactName = FIXTag 
+tSecuritySettlAgentContactName = FIXTag
    { tName = "SecuritySettlAgentContactName"
    , tnum = 180
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSecuritySettlAgentContactPhone :: FIXTag
-tSecuritySettlAgentContactPhone = FIXTag 
+tSecuritySettlAgentContactPhone = FIXTag
    { tName = "SecuritySettlAgentContactPhone"
    , tnum = 181
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tCashSettlAgentName :: FIXTag
-tCashSettlAgentName = FIXTag 
+tCashSettlAgentName = FIXTag
    { tName = "CashSettlAgentName"
    , tnum = 182
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tCashSettlAgentCode :: FIXTag
-tCashSettlAgentCode = FIXTag 
+tCashSettlAgentCode = FIXTag
    { tName = "CashSettlAgentCode"
    , tnum = 183
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tCashSettlAgentAcctNum :: FIXTag
-tCashSettlAgentAcctNum = FIXTag 
+tCashSettlAgentAcctNum = FIXTag
    { tName = "CashSettlAgentAcctNum"
    , tnum = 184
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tCashSettlAgentAcctName :: FIXTag
-tCashSettlAgentAcctName = FIXTag 
+tCashSettlAgentAcctName = FIXTag
    { tName = "CashSettlAgentAcctName"
    , tnum = 185
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tCashSettlAgentContactName :: FIXTag
-tCashSettlAgentContactName = FIXTag 
+tCashSettlAgentContactName = FIXTag
    { tName = "CashSettlAgentContactName"
    , tnum = 186
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tCashSettlAgentContactPhone :: FIXTag
-tCashSettlAgentContactPhone = FIXTag 
+tCashSettlAgentContactPhone = FIXTag
    { tName = "CashSettlAgentContactPhone"
    , tnum = 187
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tBidSpotRate :: FIXTag
-tBidSpotRate = FIXTag 
+tBidSpotRate = FIXTag
    { tName = "BidSpotRate"
    , tnum = 188
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tBidForwardPoints :: FIXTag
-tBidForwardPoints = FIXTag 
+tBidForwardPoints = FIXTag
    { tName = "BidForwardPoints"
    , tnum = 189
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tOfferSpotRate :: FIXTag
-tOfferSpotRate = FIXTag 
+tOfferSpotRate = FIXTag
    { tName = "OfferSpotRate"
    , tnum = 190
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tOfferForwardPoints :: FIXTag
-tOfferForwardPoints = FIXTag 
+tOfferForwardPoints = FIXTag
    { tName = "OfferForwardPoints"
    , tnum = 191
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tOrderQty2 :: FIXTag
-tOrderQty2 = FIXTag 
+tOrderQty2 = FIXTag
    { tName = "OrderQty2"
    , tnum = 192
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tFutSettDate2 :: FIXTag
-tFutSettDate2 = FIXTag 
+tFutSettDate2 = FIXTag
    { tName = "FutSettDate2"
    , tnum = 193
    , tparser = toFIXDateOnly
-   , arbitraryValue = FIXDateOnly <$> arbitrary }
+   , arbitraryValue = FIXDateOnly <$> arbitraryDay }
 
 tLastSpotRate :: FIXTag
-tLastSpotRate = FIXTag 
+tLastSpotRate = FIXTag
    { tName = "LastSpotRate"
    , tnum = 194
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tLastForwardPoints :: FIXTag
-tLastForwardPoints = FIXTag 
+tLastForwardPoints = FIXTag
    { tName = "LastForwardPoints"
    , tnum = 195
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tAllocLinkID :: FIXTag
-tAllocLinkID = FIXTag 
+tAllocLinkID = FIXTag
    { tName = "AllocLinkID"
    , tnum = 196
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tAllocLinkType :: FIXTag
-tAllocLinkType = FIXTag 
+tAllocLinkType = FIXTag
    { tName = "AllocLinkType"
    , tnum = 197
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tSecondaryOrderID :: FIXTag
-tSecondaryOrderID = FIXTag 
+tSecondaryOrderID = FIXTag
    { tName = "SecondaryOrderID"
    , tnum = 198
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tNoIOIQualifiers :: FIXTag
-tNoIOIQualifiers = FIXTag 
+tNoIOIQualifiers = FIXTag
    { tName = "NoIOIQualifiers"
    , tnum = 199
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tMaturityMonthYear :: FIXTag
-tMaturityMonthYear = FIXTag 
+tMaturityMonthYear = FIXTag
    { tName = "MaturityMonthYear"
    , tnum = 200
    , tparser = toFIXMonthYear
-   , arbitraryValue = FIXMonthYear <$> arbitrary }
+   , arbitraryValue = FIXMonthYear <$> arbitraryMonthYear }
 
 tPutOrCall :: FIXTag
-tPutOrCall = FIXTag 
+tPutOrCall = FIXTag
    { tName = "PutOrCall"
    , tnum = 201
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tStrikePrice :: FIXTag
-tStrikePrice = FIXTag 
+tStrikePrice = FIXTag
    { tName = "StrikePrice"
    , tnum = 202
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tCoveredOrUncovered :: FIXTag
-tCoveredOrUncovered = FIXTag 
+tCoveredOrUncovered = FIXTag
    { tName = "CoveredOrUncovered"
    , tnum = 203
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tCustomerOrFirm :: FIXTag
-tCustomerOrFirm = FIXTag 
+tCustomerOrFirm = FIXTag
    { tName = "CustomerOrFirm"
    , tnum = 204
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tMaturityDay :: FIXTag
-tMaturityDay = FIXTag 
+tMaturityDay = FIXTag
    { tName = "MaturityDay"
    , tnum = 205
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tOptAttribute :: FIXTag
-tOptAttribute = FIXTag 
+tOptAttribute = FIXTag
    { tName = "OptAttribute"
    , tnum = 206
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tSecurityExchange :: FIXTag
-tSecurityExchange = FIXTag 
+tSecurityExchange = FIXTag
    { tName = "SecurityExchange"
    , tnum = 207
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tNotifyBrokerOfCredit :: FIXTag
-tNotifyBrokerOfCredit = FIXTag 
+tNotifyBrokerOfCredit = FIXTag
    { tName = "NotifyBrokerOfCredit"
    , tnum = 208
    , tparser = toFIXBool
    , arbitraryValue = FIXBool <$> arbitrary }
 
 tAllocHandlInst :: FIXTag
-tAllocHandlInst = FIXTag 
+tAllocHandlInst = FIXTag
    { tName = "AllocHandlInst"
    , tnum = 209
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tMaxShow :: FIXTag
-tMaxShow = FIXTag 
+tMaxShow = FIXTag
    { tName = "MaxShow"
    , tnum = 210
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tPegDifference :: FIXTag
-tPegDifference = FIXTag 
+tPegDifference = FIXTag
    { tName = "PegDifference"
    , tnum = 211
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tXmlDataLen :: FIXTag
-tXmlDataLen = FIXTag 
+tXmlDataLen = FIXTag
    { tName = "XmlDataLen"
    , tnum = 212
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tXmlData :: FIXTag
-tXmlData = FIXTag 
+tXmlData = FIXTag
    { tName = "XmlData"
    , tnum = 213
    , tparser = toFIXData
-   , arbitraryValue = FIXData <$> arbitrary }
+   , arbitraryValue = FIXData <$> arbitraryByteString }
 
 tSettlInstRefID :: FIXTag
-tSettlInstRefID = FIXTag 
+tSettlInstRefID = FIXTag
    { tName = "SettlInstRefID"
    , tnum = 214
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tNoRoutingIDs :: FIXTag
-tNoRoutingIDs = FIXTag 
+tNoRoutingIDs = FIXTag
    { tName = "NoRoutingIDs"
    , tnum = 215
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tRoutingType :: FIXTag
-tRoutingType = FIXTag 
+tRoutingType = FIXTag
    { tName = "RoutingType"
    , tnum = 216
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tRoutingID :: FIXTag
-tRoutingID = FIXTag 
+tRoutingID = FIXTag
    { tName = "RoutingID"
    , tnum = 217
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSpreadToBenchmark :: FIXTag
-tSpreadToBenchmark = FIXTag 
+tSpreadToBenchmark = FIXTag
    { tName = "SpreadToBenchmark"
    , tnum = 218
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tBenchmark :: FIXTag
-tBenchmark = FIXTag 
+tBenchmark = FIXTag
    { tName = "Benchmark"
    , tnum = 219
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tCouponRate :: FIXTag
-tCouponRate = FIXTag 
+tCouponRate = FIXTag
    { tName = "CouponRate"
    , tnum = 223
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tContractMultiplier :: FIXTag
-tContractMultiplier = FIXTag 
+tContractMultiplier = FIXTag
    { tName = "ContractMultiplier"
    , tnum = 231
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tMDReqID :: FIXTag
-tMDReqID = FIXTag 
+tMDReqID = FIXTag
    { tName = "MDReqID"
    , tnum = 262
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSubscriptionRequestType :: FIXTag
-tSubscriptionRequestType = FIXTag 
+tSubscriptionRequestType = FIXTag
    { tName = "SubscriptionRequestType"
    , tnum = 263
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tMarketDepth :: FIXTag
-tMarketDepth = FIXTag 
+tMarketDepth = FIXTag
    { tName = "MarketDepth"
    , tnum = 264
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tMDUpdateType :: FIXTag
-tMDUpdateType = FIXTag 
+tMDUpdateType = FIXTag
    { tName = "MDUpdateType"
    , tnum = 265
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tAggregatedBook :: FIXTag
-tAggregatedBook = FIXTag 
+tAggregatedBook = FIXTag
    { tName = "AggregatedBook"
    , tnum = 266
    , tparser = toFIXBool
    , arbitraryValue = FIXBool <$> arbitrary }
 
 tNoMDEntryTypes :: FIXTag
-tNoMDEntryTypes = FIXTag 
+tNoMDEntryTypes = FIXTag
    { tName = "NoMDEntryTypes"
    , tnum = 267
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tNoMDEntries :: FIXTag
-tNoMDEntries = FIXTag 
+tNoMDEntries = FIXTag
    { tName = "NoMDEntries"
    , tnum = 268
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tMDEntryType :: FIXTag
-tMDEntryType = FIXTag 
+tMDEntryType = FIXTag
    { tName = "MDEntryType"
    , tnum = 269
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tMDEntryPx :: FIXTag
-tMDEntryPx = FIXTag 
+tMDEntryPx = FIXTag
    { tName = "MDEntryPx"
    , tnum = 270
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tMDEntrySize :: FIXTag
-tMDEntrySize = FIXTag 
+tMDEntrySize = FIXTag
    { tName = "MDEntrySize"
    , tnum = 271
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tMDEntryDate :: FIXTag
-tMDEntryDate = FIXTag 
+tMDEntryDate = FIXTag
    { tName = "MDEntryDate"
    , tnum = 272
    , tparser = toFIXDateOnly
-   , arbitraryValue = FIXDateOnly <$> arbitrary }
+   , arbitraryValue = FIXDateOnly <$> arbitraryDay }
 
 tMDEntryTime :: FIXTag
-tMDEntryTime = FIXTag 
+tMDEntryTime = FIXTag
    { tName = "MDEntryTime"
    , tnum = 273
    , tparser = toFIXTimeOnly
-   , arbitraryValue = FIXTimeOnly <$> arbitrary }
+   , arbitraryValue = FIXTimeOnly <$> arbitraryDiffTime }
 
 tTickDirection :: FIXTag
-tTickDirection = FIXTag 
+tTickDirection = FIXTag
    { tName = "TickDirection"
    , tnum = 274
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tMDMkt :: FIXTag
-tMDMkt = FIXTag 
+tMDMkt = FIXTag
    { tName = "MDMkt"
    , tnum = 275
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tQuoteCondition :: FIXTag
-tQuoteCondition = FIXTag 
+tQuoteCondition = FIXTag
    { tName = "QuoteCondition"
    , tnum = 276
    , tparser = toFIXMultipleValueString
-   , arbitraryValue = FIXMultipleValueString <$> arbitrary }
+   , arbitraryValue = FIXMultipleValueString <$> arbitraryByteString }
 
 tTradeCondition :: FIXTag
-tTradeCondition = FIXTag 
+tTradeCondition = FIXTag
    { tName = "TradeCondition"
    , tnum = 277
    , tparser = toFIXMultipleValueString
-   , arbitraryValue = FIXMultipleValueString <$> arbitrary }
+   , arbitraryValue = FIXMultipleValueString <$> arbitraryByteString }
 
 tMDEntryID :: FIXTag
-tMDEntryID = FIXTag 
+tMDEntryID = FIXTag
    { tName = "MDEntryID"
    , tnum = 278
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tMDUpdateAction :: FIXTag
-tMDUpdateAction = FIXTag 
+tMDUpdateAction = FIXTag
    { tName = "MDUpdateAction"
    , tnum = 279
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tMDEntryRefID :: FIXTag
-tMDEntryRefID = FIXTag 
+tMDEntryRefID = FIXTag
    { tName = "MDEntryRefID"
    , tnum = 280
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tMDReqRejReason :: FIXTag
-tMDReqRejReason = FIXTag 
+tMDReqRejReason = FIXTag
    { tName = "MDReqRejReason"
    , tnum = 281
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tMDEntryOriginator :: FIXTag
-tMDEntryOriginator = FIXTag 
+tMDEntryOriginator = FIXTag
    { tName = "MDEntryOriginator"
    , tnum = 282
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tLocationID :: FIXTag
-tLocationID = FIXTag 
+tLocationID = FIXTag
    { tName = "LocationID"
    , tnum = 283
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tDeskID :: FIXTag
-tDeskID = FIXTag 
+tDeskID = FIXTag
    { tName = "DeskID"
    , tnum = 284
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tDeleteReason :: FIXTag
-tDeleteReason = FIXTag 
+tDeleteReason = FIXTag
    { tName = "DeleteReason"
    , tnum = 285
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tOpenCloseSettleFlag :: FIXTag
-tOpenCloseSettleFlag = FIXTag 
+tOpenCloseSettleFlag = FIXTag
    { tName = "OpenCloseSettleFlag"
    , tnum = 286
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tSellerDays :: FIXTag
-tSellerDays = FIXTag 
+tSellerDays = FIXTag
    { tName = "SellerDays"
    , tnum = 287
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tMDEntryBuyer :: FIXTag
-tMDEntryBuyer = FIXTag 
+tMDEntryBuyer = FIXTag
    { tName = "MDEntryBuyer"
    , tnum = 288
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tMDEntrySeller :: FIXTag
-tMDEntrySeller = FIXTag 
+tMDEntrySeller = FIXTag
    { tName = "MDEntrySeller"
    , tnum = 289
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tMDEntryPositionNo :: FIXTag
-tMDEntryPositionNo = FIXTag 
+tMDEntryPositionNo = FIXTag
    { tName = "MDEntryPositionNo"
    , tnum = 290
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tFinancialStatus :: FIXTag
-tFinancialStatus = FIXTag 
+tFinancialStatus = FIXTag
    { tName = "FinancialStatus"
    , tnum = 291
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tCorporateAction :: FIXTag
-tCorporateAction = FIXTag 
+tCorporateAction = FIXTag
    { tName = "CorporateAction"
    , tnum = 292
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tDefBidSize :: FIXTag
-tDefBidSize = FIXTag 
+tDefBidSize = FIXTag
    { tName = "DefBidSize"
    , tnum = 293
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tDefOfferSize :: FIXTag
-tDefOfferSize = FIXTag 
+tDefOfferSize = FIXTag
    { tName = "DefOfferSize"
    , tnum = 294
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tNoQuoteEntries :: FIXTag
-tNoQuoteEntries = FIXTag 
+tNoQuoteEntries = FIXTag
    { tName = "NoQuoteEntries"
    , tnum = 295
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tNoQuoteSets :: FIXTag
-tNoQuoteSets = FIXTag 
+tNoQuoteSets = FIXTag
    { tName = "NoQuoteSets"
    , tnum = 296
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tQuoteAckStatus :: FIXTag
-tQuoteAckStatus = FIXTag 
+tQuoteAckStatus = FIXTag
    { tName = "QuoteAckStatus"
    , tnum = 297
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tQuoteCancelType :: FIXTag
-tQuoteCancelType = FIXTag 
+tQuoteCancelType = FIXTag
    { tName = "QuoteCancelType"
    , tnum = 298
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tQuoteEntryID :: FIXTag
-tQuoteEntryID = FIXTag 
+tQuoteEntryID = FIXTag
    { tName = "QuoteEntryID"
    , tnum = 299
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tQuoteRejectReason :: FIXTag
-tQuoteRejectReason = FIXTag 
+tQuoteRejectReason = FIXTag
    { tName = "QuoteRejectReason"
    , tnum = 300
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tQuoteResponseLevel :: FIXTag
-tQuoteResponseLevel = FIXTag 
+tQuoteResponseLevel = FIXTag
    { tName = "QuoteResponseLevel"
    , tnum = 301
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tQuoteSetID :: FIXTag
-tQuoteSetID = FIXTag 
+tQuoteSetID = FIXTag
    { tName = "QuoteSetID"
    , tnum = 302
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tQuoteRequestType :: FIXTag
-tQuoteRequestType = FIXTag 
+tQuoteRequestType = FIXTag
    { tName = "QuoteRequestType"
    , tnum = 303
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tTotQuoteEntries :: FIXTag
-tTotQuoteEntries = FIXTag 
+tTotQuoteEntries = FIXTag
    { tName = "TotQuoteEntries"
    , tnum = 304
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tUnderlyingIDSource :: FIXTag
-tUnderlyingIDSource = FIXTag 
+tUnderlyingIDSource = FIXTag
    { tName = "UnderlyingIDSource"
    , tnum = 305
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tUnderlyingIssuer :: FIXTag
-tUnderlyingIssuer = FIXTag 
+tUnderlyingIssuer = FIXTag
    { tName = "UnderlyingIssuer"
    , tnum = 306
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tUnderlyingSecurityDesc :: FIXTag
-tUnderlyingSecurityDesc = FIXTag 
+tUnderlyingSecurityDesc = FIXTag
    { tName = "UnderlyingSecurityDesc"
    , tnum = 307
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tUnderlyingSecurityExchange :: FIXTag
-tUnderlyingSecurityExchange = FIXTag 
+tUnderlyingSecurityExchange = FIXTag
    { tName = "UnderlyingSecurityExchange"
    , tnum = 308
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tUnderlyingSecurityID :: FIXTag
-tUnderlyingSecurityID = FIXTag 
+tUnderlyingSecurityID = FIXTag
    { tName = "UnderlyingSecurityID"
    , tnum = 309
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tUnderlyingSecurityType :: FIXTag
-tUnderlyingSecurityType = FIXTag 
+tUnderlyingSecurityType = FIXTag
    { tName = "UnderlyingSecurityType"
    , tnum = 310
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tUnderlyingSymbol :: FIXTag
-tUnderlyingSymbol = FIXTag 
+tUnderlyingSymbol = FIXTag
    { tName = "UnderlyingSymbol"
    , tnum = 311
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tUnderlyingSymbolSfx :: FIXTag
-tUnderlyingSymbolSfx = FIXTag 
+tUnderlyingSymbolSfx = FIXTag
    { tName = "UnderlyingSymbolSfx"
    , tnum = 312
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tUnderlyingMaturityMonthYear :: FIXTag
-tUnderlyingMaturityMonthYear = FIXTag 
+tUnderlyingMaturityMonthYear = FIXTag
    { tName = "UnderlyingMaturityMonthYear"
    , tnum = 313
    , tparser = toFIXMonthYear
-   , arbitraryValue = FIXMonthYear <$> arbitrary }
+   , arbitraryValue = FIXMonthYear <$> arbitraryMonthYear }
 
 tUnderlyingMaturityDay :: FIXTag
-tUnderlyingMaturityDay = FIXTag 
+tUnderlyingMaturityDay = FIXTag
    { tName = "UnderlyingMaturityDay"
    , tnum = 314
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tUnderlyingPutOrCall :: FIXTag
-tUnderlyingPutOrCall = FIXTag 
+tUnderlyingPutOrCall = FIXTag
    { tName = "UnderlyingPutOrCall"
    , tnum = 315
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tUnderlyingStrikePrice :: FIXTag
-tUnderlyingStrikePrice = FIXTag 
+tUnderlyingStrikePrice = FIXTag
    { tName = "UnderlyingStrikePrice"
    , tnum = 316
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tUnderlyingOptAttribute :: FIXTag
-tUnderlyingOptAttribute = FIXTag 
+tUnderlyingOptAttribute = FIXTag
    { tName = "UnderlyingOptAttribute"
    , tnum = 317
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tUnderlyingCurrency :: FIXTag
-tUnderlyingCurrency = FIXTag 
+tUnderlyingCurrency = FIXTag
    { tName = "UnderlyingCurrency"
    , tnum = 318
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tRatioQty :: FIXTag
-tRatioQty = FIXTag 
+tRatioQty = FIXTag
    { tName = "RatioQty"
    , tnum = 319
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tSecurityReqID :: FIXTag
-tSecurityReqID = FIXTag 
+tSecurityReqID = FIXTag
    { tName = "SecurityReqID"
    , tnum = 320
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSecurityRequestType :: FIXTag
-tSecurityRequestType = FIXTag 
+tSecurityRequestType = FIXTag
    { tName = "SecurityRequestType"
    , tnum = 321
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tSecurityResponseID :: FIXTag
-tSecurityResponseID = FIXTag 
+tSecurityResponseID = FIXTag
    { tName = "SecurityResponseID"
    , tnum = 322
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSecurityResponseType :: FIXTag
-tSecurityResponseType = FIXTag 
+tSecurityResponseType = FIXTag
    { tName = "SecurityResponseType"
    , tnum = 323
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tSecurityStatusReqID :: FIXTag
-tSecurityStatusReqID = FIXTag 
+tSecurityStatusReqID = FIXTag
    { tName = "SecurityStatusReqID"
    , tnum = 324
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tUnsolicitedIndicator :: FIXTag
-tUnsolicitedIndicator = FIXTag 
+tUnsolicitedIndicator = FIXTag
    { tName = "UnsolicitedIndicator"
    , tnum = 325
    , tparser = toFIXBool
    , arbitraryValue = FIXBool <$> arbitrary }
 
 tSecurityTradingStatus :: FIXTag
-tSecurityTradingStatus = FIXTag 
+tSecurityTradingStatus = FIXTag
    { tName = "SecurityTradingStatus"
    , tnum = 326
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tHaltReasonChar :: FIXTag
-tHaltReasonChar = FIXTag 
+tHaltReasonChar = FIXTag
    { tName = "HaltReasonChar"
    , tnum = 327
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tInViewOfCommon :: FIXTag
-tInViewOfCommon = FIXTag 
+tInViewOfCommon = FIXTag
    { tName = "InViewOfCommon"
    , tnum = 328
    , tparser = toFIXBool
    , arbitraryValue = FIXBool <$> arbitrary }
 
 tDueToRelated :: FIXTag
-tDueToRelated = FIXTag 
+tDueToRelated = FIXTag
    { tName = "DueToRelated"
    , tnum = 329
    , tparser = toFIXBool
    , arbitraryValue = FIXBool <$> arbitrary }
 
 tBuyVolume :: FIXTag
-tBuyVolume = FIXTag 
+tBuyVolume = FIXTag
    { tName = "BuyVolume"
    , tnum = 330
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tSellVolume :: FIXTag
-tSellVolume = FIXTag 
+tSellVolume = FIXTag
    { tName = "SellVolume"
    , tnum = 331
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tHighPx :: FIXTag
-tHighPx = FIXTag 
+tHighPx = FIXTag
    { tName = "HighPx"
    , tnum = 332
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tLowPx :: FIXTag
-tLowPx = FIXTag 
+tLowPx = FIXTag
    { tName = "LowPx"
    , tnum = 333
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tAdjustment :: FIXTag
-tAdjustment = FIXTag 
+tAdjustment = FIXTag
    { tName = "Adjustment"
    , tnum = 334
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tTradSesReqID :: FIXTag
-tTradSesReqID = FIXTag 
+tTradSesReqID = FIXTag
    { tName = "TradSesReqID"
    , tnum = 335
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tTradingSessionID :: FIXTag
-tTradingSessionID = FIXTag 
+tTradingSessionID = FIXTag
    { tName = "TradingSessionID"
    , tnum = 336
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tContraTrader :: FIXTag
-tContraTrader = FIXTag 
+tContraTrader = FIXTag
    { tName = "ContraTrader"
    , tnum = 337
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tTradSesMethod :: FIXTag
-tTradSesMethod = FIXTag 
+tTradSesMethod = FIXTag
    { tName = "TradSesMethod"
    , tnum = 338
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tTradSesMode :: FIXTag
-tTradSesMode = FIXTag 
+tTradSesMode = FIXTag
    { tName = "TradSesMode"
    , tnum = 339
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tTradSesStatus :: FIXTag
-tTradSesStatus = FIXTag 
+tTradSesStatus = FIXTag
    { tName = "TradSesStatus"
    , tnum = 340
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tTradSesStartTime :: FIXTag
-tTradSesStartTime = FIXTag 
+tTradSesStartTime = FIXTag
    { tName = "TradSesStartTime"
    , tnum = 341
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tTradSesOpenTime :: FIXTag
-tTradSesOpenTime = FIXTag 
+tTradSesOpenTime = FIXTag
    { tName = "TradSesOpenTime"
    , tnum = 342
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tTradSesPreCloseTime :: FIXTag
-tTradSesPreCloseTime = FIXTag 
+tTradSesPreCloseTime = FIXTag
    { tName = "TradSesPreCloseTime"
    , tnum = 343
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tTradSesCloseTime :: FIXTag
-tTradSesCloseTime = FIXTag 
+tTradSesCloseTime = FIXTag
    { tName = "TradSesCloseTime"
    , tnum = 344
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tTradSesEndTime :: FIXTag
-tTradSesEndTime = FIXTag 
+tTradSesEndTime = FIXTag
    { tName = "TradSesEndTime"
    , tnum = 345
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tNumberOfOrders :: FIXTag
-tNumberOfOrders = FIXTag 
+tNumberOfOrders = FIXTag
    { tName = "NumberOfOrders"
    , tnum = 346
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tMessageEncoding :: FIXTag
-tMessageEncoding = FIXTag 
+tMessageEncoding = FIXTag
    { tName = "MessageEncoding"
    , tnum = 347
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tEncodedIssuerLen :: FIXTag
-tEncodedIssuerLen = FIXTag 
+tEncodedIssuerLen = FIXTag
    { tName = "EncodedIssuerLen"
    , tnum = 348
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tEncodedIssuer :: FIXTag
-tEncodedIssuer = FIXTag 
+tEncodedIssuer = FIXTag
    { tName = "EncodedIssuer"
    , tnum = 349
    , tparser = toFIXData
-   , arbitraryValue = FIXData <$> arbitrary }
+   , arbitraryValue = FIXData <$> arbitraryByteString }
 
 tEncodedSecurityDescLen :: FIXTag
-tEncodedSecurityDescLen = FIXTag 
+tEncodedSecurityDescLen = FIXTag
    { tName = "EncodedSecurityDescLen"
    , tnum = 350
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tEncodedSecurityDesc :: FIXTag
-tEncodedSecurityDesc = FIXTag 
+tEncodedSecurityDesc = FIXTag
    { tName = "EncodedSecurityDesc"
    , tnum = 351
    , tparser = toFIXData
-   , arbitraryValue = FIXData <$> arbitrary }
+   , arbitraryValue = FIXData <$> arbitraryByteString }
 
 tEncodedListExecInstLen :: FIXTag
-tEncodedListExecInstLen = FIXTag 
+tEncodedListExecInstLen = FIXTag
    { tName = "EncodedListExecInstLen"
    , tnum = 352
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tEncodedListExecInst :: FIXTag
-tEncodedListExecInst = FIXTag 
+tEncodedListExecInst = FIXTag
    { tName = "EncodedListExecInst"
    , tnum = 353
    , tparser = toFIXData
-   , arbitraryValue = FIXData <$> arbitrary }
+   , arbitraryValue = FIXData <$> arbitraryByteString }
 
 tEncodedTextLen :: FIXTag
-tEncodedTextLen = FIXTag 
+tEncodedTextLen = FIXTag
    { tName = "EncodedTextLen"
    , tnum = 354
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tEncodedText :: FIXTag
-tEncodedText = FIXTag 
+tEncodedText = FIXTag
    { tName = "EncodedText"
    , tnum = 355
    , tparser = toFIXData
-   , arbitraryValue = FIXData <$> arbitrary }
+   , arbitraryValue = FIXData <$> arbitraryByteString }
 
 tEncodedSubjectLen :: FIXTag
-tEncodedSubjectLen = FIXTag 
+tEncodedSubjectLen = FIXTag
    { tName = "EncodedSubjectLen"
    , tnum = 356
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tEncodedSubject :: FIXTag
-tEncodedSubject = FIXTag 
+tEncodedSubject = FIXTag
    { tName = "EncodedSubject"
    , tnum = 357
    , tparser = toFIXData
-   , arbitraryValue = FIXData <$> arbitrary }
+   , arbitraryValue = FIXData <$> arbitraryByteString }
 
 tEncodedHeadlineLen :: FIXTag
-tEncodedHeadlineLen = FIXTag 
+tEncodedHeadlineLen = FIXTag
    { tName = "EncodedHeadlineLen"
    , tnum = 358
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tEncodedHeadline :: FIXTag
-tEncodedHeadline = FIXTag 
+tEncodedHeadline = FIXTag
    { tName = "EncodedHeadline"
    , tnum = 359
    , tparser = toFIXData
-   , arbitraryValue = FIXData <$> arbitrary }
+   , arbitraryValue = FIXData <$> arbitraryByteString }
 
 tEncodedAllocTextLen :: FIXTag
-tEncodedAllocTextLen = FIXTag 
+tEncodedAllocTextLen = FIXTag
    { tName = "EncodedAllocTextLen"
    , tnum = 360
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tEncodedAllocText :: FIXTag
-tEncodedAllocText = FIXTag 
+tEncodedAllocText = FIXTag
    { tName = "EncodedAllocText"
    , tnum = 361
    , tparser = toFIXData
-   , arbitraryValue = FIXData <$> arbitrary }
+   , arbitraryValue = FIXData <$> arbitraryByteString }
 
 tEncodedUnderlyingIssuerLen :: FIXTag
-tEncodedUnderlyingIssuerLen = FIXTag 
+tEncodedUnderlyingIssuerLen = FIXTag
    { tName = "EncodedUnderlyingIssuerLen"
    , tnum = 362
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tEncodedUnderlyingIssuer :: FIXTag
-tEncodedUnderlyingIssuer = FIXTag 
+tEncodedUnderlyingIssuer = FIXTag
    { tName = "EncodedUnderlyingIssuer"
    , tnum = 363
    , tparser = toFIXData
-   , arbitraryValue = FIXData <$> arbitrary }
+   , arbitraryValue = FIXData <$> arbitraryByteString }
 
 tEncodedUnderlyingSecurityDescLen :: FIXTag
-tEncodedUnderlyingSecurityDescLen = FIXTag 
+tEncodedUnderlyingSecurityDescLen = FIXTag
    { tName = "EncodedUnderlyingSecurityDescLen"
    , tnum = 364
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tEncodedUnderlyingSecurityDesc :: FIXTag
-tEncodedUnderlyingSecurityDesc = FIXTag 
+tEncodedUnderlyingSecurityDesc = FIXTag
    { tName = "EncodedUnderlyingSecurityDesc"
    , tnum = 365
    , tparser = toFIXData
-   , arbitraryValue = FIXData <$> arbitrary }
+   , arbitraryValue = FIXData <$> arbitraryByteString }
 
 tAllocPrice :: FIXTag
-tAllocPrice = FIXTag 
+tAllocPrice = FIXTag
    { tName = "AllocPrice"
    , tnum = 366
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tQuoteSetValidUntilTime :: FIXTag
-tQuoteSetValidUntilTime = FIXTag 
+tQuoteSetValidUntilTime = FIXTag
    { tName = "QuoteSetValidUntilTime"
    , tnum = 367
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tQuoteEntryRejectReason :: FIXTag
-tQuoteEntryRejectReason = FIXTag 
+tQuoteEntryRejectReason = FIXTag
    { tName = "QuoteEntryRejectReason"
    , tnum = 368
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tLastMsgSeqNumProcessed :: FIXTag
-tLastMsgSeqNumProcessed = FIXTag 
+tLastMsgSeqNumProcessed = FIXTag
    { tName = "LastMsgSeqNumProcessed"
    , tnum = 369
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tOnBehalfOfSendingTime :: FIXTag
-tOnBehalfOfSendingTime = FIXTag 
+tOnBehalfOfSendingTime = FIXTag
    { tName = "OnBehalfOfSendingTime"
    , tnum = 370
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tRefTagID :: FIXTag
-tRefTagID = FIXTag 
+tRefTagID = FIXTag
    { tName = "RefTagID"
    , tnum = 371
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tRefMsgType :: FIXTag
-tRefMsgType = FIXTag 
+tRefMsgType = FIXTag
    { tName = "RefMsgType"
    , tnum = 372
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSessionRejectReason :: FIXTag
-tSessionRejectReason = FIXTag 
+tSessionRejectReason = FIXTag
    { tName = "SessionRejectReason"
    , tnum = 373
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tBidRequestTransType :: FIXTag
-tBidRequestTransType = FIXTag 
+tBidRequestTransType = FIXTag
    { tName = "BidRequestTransType"
    , tnum = 374
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tContraBroker :: FIXTag
-tContraBroker = FIXTag 
+tContraBroker = FIXTag
    { tName = "ContraBroker"
    , tnum = 375
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tComplianceID :: FIXTag
-tComplianceID = FIXTag 
+tComplianceID = FIXTag
    { tName = "ComplianceID"
    , tnum = 376
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSolicitedFlag :: FIXTag
-tSolicitedFlag = FIXTag 
+tSolicitedFlag = FIXTag
    { tName = "SolicitedFlag"
    , tnum = 377
    , tparser = toFIXBool
    , arbitraryValue = FIXBool <$> arbitrary }
 
 tExecRestatementReason :: FIXTag
-tExecRestatementReason = FIXTag 
+tExecRestatementReason = FIXTag
    { tName = "ExecRestatementReason"
    , tnum = 378
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tBusinessRejectRefID :: FIXTag
-tBusinessRejectRefID = FIXTag 
+tBusinessRejectRefID = FIXTag
    { tName = "BusinessRejectRefID"
    , tnum = 379
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tBusinessRejectReason :: FIXTag
-tBusinessRejectReason = FIXTag 
+tBusinessRejectReason = FIXTag
    { tName = "BusinessRejectReason"
    , tnum = 380
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tGrossTradeAmt :: FIXTag
-tGrossTradeAmt = FIXTag 
+tGrossTradeAmt = FIXTag
    { tName = "GrossTradeAmt"
    , tnum = 381
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tNoContraBrokers :: FIXTag
-tNoContraBrokers = FIXTag 
+tNoContraBrokers = FIXTag
    { tName = "NoContraBrokers"
    , tnum = 382
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tMaxMessageSize :: FIXTag
-tMaxMessageSize = FIXTag 
+tMaxMessageSize = FIXTag
    { tName = "MaxMessageSize"
    , tnum = 383
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tNoMsgTypes :: FIXTag
-tNoMsgTypes = FIXTag 
+tNoMsgTypes = FIXTag
    { tName = "NoMsgTypes"
    , tnum = 384
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tMsgDirection :: FIXTag
-tMsgDirection = FIXTag 
+tMsgDirection = FIXTag
    { tName = "MsgDirection"
    , tnum = 385
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tNoTradingSessions :: FIXTag
-tNoTradingSessions = FIXTag 
+tNoTradingSessions = FIXTag
    { tName = "NoTradingSessions"
    , tnum = 386
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tTotalVolumeTraded :: FIXTag
-tTotalVolumeTraded = FIXTag 
+tTotalVolumeTraded = FIXTag
    { tName = "TotalVolumeTraded"
    , tnum = 387
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tDiscretionInst :: FIXTag
-tDiscretionInst = FIXTag 
+tDiscretionInst = FIXTag
    { tName = "DiscretionInst"
    , tnum = 388
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tDiscretionOffset :: FIXTag
-tDiscretionOffset = FIXTag 
+tDiscretionOffset = FIXTag
    { tName = "DiscretionOffset"
    , tnum = 389
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tBidID :: FIXTag
-tBidID = FIXTag 
+tBidID = FIXTag
    { tName = "BidID"
    , tnum = 390
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tClientBidID :: FIXTag
-tClientBidID = FIXTag 
+tClientBidID = FIXTag
    { tName = "ClientBidID"
    , tnum = 391
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tListName :: FIXTag
-tListName = FIXTag 
+tListName = FIXTag
    { tName = "ListName"
    , tnum = 392
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tTotalNumSecurities :: FIXTag
-tTotalNumSecurities = FIXTag 
+tTotalNumSecurities = FIXTag
    { tName = "TotalNumSecurities"
    , tnum = 393
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tBidType :: FIXTag
-tBidType = FIXTag 
+tBidType = FIXTag
    { tName = "BidType"
    , tnum = 394
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tNumTickets :: FIXTag
-tNumTickets = FIXTag 
+tNumTickets = FIXTag
    { tName = "NumTickets"
    , tnum = 395
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tSideValue1 :: FIXTag
-tSideValue1 = FIXTag 
+tSideValue1 = FIXTag
    { tName = "SideValue1"
    , tnum = 396
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tSideValue2 :: FIXTag
-tSideValue2 = FIXTag 
+tSideValue2 = FIXTag
    { tName = "SideValue2"
    , tnum = 397
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tNoBidDescriptors :: FIXTag
-tNoBidDescriptors = FIXTag 
+tNoBidDescriptors = FIXTag
    { tName = "NoBidDescriptors"
    , tnum = 398
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tBidDescriptorType :: FIXTag
-tBidDescriptorType = FIXTag 
+tBidDescriptorType = FIXTag
    { tName = "BidDescriptorType"
    , tnum = 399
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tBidDescriptor :: FIXTag
-tBidDescriptor = FIXTag 
+tBidDescriptor = FIXTag
    { tName = "BidDescriptor"
    , tnum = 400
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tSideValueInd :: FIXTag
-tSideValueInd = FIXTag 
+tSideValueInd = FIXTag
    { tName = "SideValueInd"
    , tnum = 401
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tLiquidityPctLow :: FIXTag
-tLiquidityPctLow = FIXTag 
+tLiquidityPctLow = FIXTag
    { tName = "LiquidityPctLow"
    , tnum = 402
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tLiquidityPctHigh :: FIXTag
-tLiquidityPctHigh = FIXTag 
+tLiquidityPctHigh = FIXTag
    { tName = "LiquidityPctHigh"
    , tnum = 403
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tLiquidityValue :: FIXTag
-tLiquidityValue = FIXTag 
+tLiquidityValue = FIXTag
    { tName = "LiquidityValue"
    , tnum = 404
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tEFPTrackingError :: FIXTag
-tEFPTrackingError = FIXTag 
+tEFPTrackingError = FIXTag
    { tName = "EFPTrackingError"
    , tnum = 405
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tFairValue :: FIXTag
-tFairValue = FIXTag 
+tFairValue = FIXTag
    { tName = "FairValue"
    , tnum = 406
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tOutsideIndexPct :: FIXTag
-tOutsideIndexPct = FIXTag 
+tOutsideIndexPct = FIXTag
    { tName = "OutsideIndexPct"
    , tnum = 407
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tValueOfFutures :: FIXTag
-tValueOfFutures = FIXTag 
+tValueOfFutures = FIXTag
    { tName = "ValueOfFutures"
    , tnum = 408
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tLiquidityIndType :: FIXTag
-tLiquidityIndType = FIXTag 
+tLiquidityIndType = FIXTag
    { tName = "LiquidityIndType"
    , tnum = 409
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tWtAverageLiquidity :: FIXTag
-tWtAverageLiquidity = FIXTag 
+tWtAverageLiquidity = FIXTag
    { tName = "WtAverageLiquidity"
    , tnum = 410
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tExchangeForPhysical :: FIXTag
-tExchangeForPhysical = FIXTag 
+tExchangeForPhysical = FIXTag
    { tName = "ExchangeForPhysical"
    , tnum = 411
    , tparser = toFIXBool
    , arbitraryValue = FIXBool <$> arbitrary }
 
 tOutMainCntryUIndex :: FIXTag
-tOutMainCntryUIndex = FIXTag 
+tOutMainCntryUIndex = FIXTag
    { tName = "OutMainCntryUIndex"
    , tnum = 412
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tCrossPercent :: FIXTag
-tCrossPercent = FIXTag 
+tCrossPercent = FIXTag
    { tName = "CrossPercent"
    , tnum = 413
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tProgRptReqs :: FIXTag
-tProgRptReqs = FIXTag 
+tProgRptReqs = FIXTag
    { tName = "ProgRptReqs"
    , tnum = 414
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tProgPeriodInterval :: FIXTag
-tProgPeriodInterval = FIXTag 
+tProgPeriodInterval = FIXTag
    { tName = "ProgPeriodInterval"
    , tnum = 415
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tIncTaxInd :: FIXTag
-tIncTaxInd = FIXTag 
+tIncTaxInd = FIXTag
    { tName = "IncTaxInd"
    , tnum = 416
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tNumBidders :: FIXTag
-tNumBidders = FIXTag 
+tNumBidders = FIXTag
    { tName = "NumBidders"
    , tnum = 417
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tTradeType :: FIXTag
-tTradeType = FIXTag 
+tTradeType = FIXTag
    { tName = "TradeType"
    , tnum = 418
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tBasisPxType :: FIXTag
-tBasisPxType = FIXTag 
+tBasisPxType = FIXTag
    { tName = "BasisPxType"
    , tnum = 419
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tNoBidComponents :: FIXTag
-tNoBidComponents = FIXTag 
+tNoBidComponents = FIXTag
    { tName = "NoBidComponents"
    , tnum = 420
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tCountry :: FIXTag
-tCountry = FIXTag 
+tCountry = FIXTag
    { tName = "Country"
    , tnum = 421
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tTotNoStrikes :: FIXTag
-tTotNoStrikes = FIXTag 
+tTotNoStrikes = FIXTag
    { tName = "TotNoStrikes"
    , tnum = 422
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tPriceType :: FIXTag
-tPriceType = FIXTag 
+tPriceType = FIXTag
    { tName = "PriceType"
    , tnum = 423
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tDayOrderQty :: FIXTag
-tDayOrderQty = FIXTag 
+tDayOrderQty = FIXTag
    { tName = "DayOrderQty"
    , tnum = 424
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tDayCumQty :: FIXTag
-tDayCumQty = FIXTag 
+tDayCumQty = FIXTag
    { tName = "DayCumQty"
    , tnum = 425
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tDayAvgPx :: FIXTag
-tDayAvgPx = FIXTag 
+tDayAvgPx = FIXTag
    { tName = "DayAvgPx"
    , tnum = 426
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tGTBookingInst :: FIXTag
-tGTBookingInst = FIXTag 
+tGTBookingInst = FIXTag
    { tName = "GTBookingInst"
    , tnum = 427
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tNoStrikes :: FIXTag
-tNoStrikes = FIXTag 
+tNoStrikes = FIXTag
    { tName = "NoStrikes"
    , tnum = 428
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tListStatusType :: FIXTag
-tListStatusType = FIXTag 
+tListStatusType = FIXTag
    { tName = "ListStatusType"
    , tnum = 429
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tNetGrossInd :: FIXTag
-tNetGrossInd = FIXTag 
+tNetGrossInd = FIXTag
    { tName = "NetGrossInd"
    , tnum = 430
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tListOrderStatus :: FIXTag
-tListOrderStatus = FIXTag 
+tListOrderStatus = FIXTag
    { tName = "ListOrderStatus"
    , tnum = 431
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tExpireDate :: FIXTag
-tExpireDate = FIXTag 
+tExpireDate = FIXTag
    { tName = "ExpireDate"
    , tnum = 432
    , tparser = toFIXDateOnly
-   , arbitraryValue = FIXDateOnly <$> arbitrary }
+   , arbitraryValue = FIXDateOnly <$> arbitraryDay }
 
 tListExecInstType :: FIXTag
-tListExecInstType = FIXTag 
+tListExecInstType = FIXTag
    { tName = "ListExecInstType"
    , tnum = 433
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tCxlRejResponseTo :: FIXTag
-tCxlRejResponseTo = FIXTag 
+tCxlRejResponseTo = FIXTag
    { tName = "CxlRejResponseTo"
    , tnum = 434
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tUnderlyingCouponRate :: FIXTag
-tUnderlyingCouponRate = FIXTag 
+tUnderlyingCouponRate = FIXTag
    { tName = "UnderlyingCouponRate"
    , tnum = 435
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tUnderlyingContractMultiplier :: FIXTag
-tUnderlyingContractMultiplier = FIXTag 
+tUnderlyingContractMultiplier = FIXTag
    { tName = "UnderlyingContractMultiplier"
    , tnum = 436
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tContraTradeQty :: FIXTag
-tContraTradeQty = FIXTag 
+tContraTradeQty = FIXTag
    { tName = "ContraTradeQty"
    , tnum = 437
    , tparser = toFIXDouble
    , arbitraryValue = FIXDouble <$> (return (-2.112 :: Double)) }
 
 tContraTradeTime :: FIXTag
-tContraTradeTime = FIXTag 
+tContraTradeTime = FIXTag
    { tName = "ContraTradeTime"
    , tnum = 438
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tClearingFirm :: FIXTag
-tClearingFirm = FIXTag 
+tClearingFirm = FIXTag
    { tName = "ClearingFirm"
    , tnum = 439
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tClearingAccount :: FIXTag
-tClearingAccount = FIXTag 
+tClearingAccount = FIXTag
    { tName = "ClearingAccount"
    , tnum = 440
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tLiquidityNumSecurities :: FIXTag
-tLiquidityNumSecurities = FIXTag 
+tLiquidityNumSecurities = FIXTag
    { tName = "LiquidityNumSecurities"
    , tnum = 441
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tMultiLegReportingType :: FIXTag
-tMultiLegReportingType = FIXTag 
+tMultiLegReportingType = FIXTag
    { tName = "MultiLegReportingType"
    , tnum = 442
    , tparser = toFIXChar
    , arbitraryValue = FIXChar <$> (return 'A') }
 
 tStrikeTime :: FIXTag
-tStrikeTime = FIXTag 
+tStrikeTime = FIXTag
    { tName = "StrikeTime"
    , tnum = 443
    , tparser = toFIXTimestamp
-   , arbitraryValue = FIXTimestamp <$> arbitrary }
+   , arbitraryValue = FIXTimestamp <$> arbitraryUTCTime }
 
 tListStatusText :: FIXTag
-tListStatusText = FIXTag 
+tListStatusText = FIXTag
    { tName = "ListStatusText"
    , tnum = 444
    , tparser = toFIXString
-   , arbitraryValue = FIXString <$> arbitrary }
+   , arbitraryValue = FIXString <$> arbitraryByteString }
 
 tEncodedListStatusTextLen :: FIXTag
-tEncodedListStatusTextLen = FIXTag 
+tEncodedListStatusTextLen = FIXTag
    { tName = "EncodedListStatusTextLen"
    , tnum = 445
    , tparser = toFIXInt
    , arbitraryValue = FIXInt <$> arbitrary }
 
 tEncodedListStatusText :: FIXTag
-tEncodedListStatusText = FIXTag 
+tEncodedListStatusText = FIXTag
    { tName = "EncodedListStatusText"
    , tnum = 446
    , tparser = toFIXData
-   , arbitraryValue = FIXData <$> arbitrary }
+   , arbitraryValue = FIXData <$> arbitraryByteString }
 
 headerFIX42 :: FIXTags
-headerFIX42 = 
+headerFIX42 =
    LT.insert (tnum tSenderCompID) tSenderCompID $
    LT.insert (tnum tTargetCompID) tTargetCompID $
    LT.insert (tnum tOnBehalfOfCompID) tOnBehalfOfCompID $
@@ -2812,7 +2812,7 @@ headerFIX42 =
 
 
 trailerFIX42 :: FIXTags
-trailerFIX42 = 
+trailerFIX42 =
    LT.insert (tnum tSignatureLength) tSignatureLength $
    LT.insert (tnum tSignature) tSignature    LT.new
 
@@ -2825,7 +2825,7 @@ mHeartbeat = FMSpec
    , msBody = mHeartbeatBody
    , msTrailer = trailerFIX42 }
    where
-   mHeartbeatBody = 
+   mHeartbeatBody =
       LT.insert (tnum tTestReqID) tTestReqID       LT.new
 
 
@@ -2837,7 +2837,7 @@ mTestRequest = FMSpec
    , msBody = mTestRequestBody
    , msTrailer = trailerFIX42 }
    where
-   mTestRequestBody = 
+   mTestRequestBody =
       LT.insert (tnum tTestReqID) tTestReqID       LT.new
 
 
@@ -2849,7 +2849,7 @@ mResendRequest = FMSpec
    , msBody = mResendRequestBody
    , msTrailer = trailerFIX42 }
    where
-   mResendRequestBody = 
+   mResendRequestBody =
       LT.insert (tnum tBeginSeqNo) tBeginSeqNo $
       LT.insert (tnum tEndSeqNo) tEndSeqNo       LT.new
 
@@ -2862,7 +2862,7 @@ mReject = FMSpec
    , msBody = mRejectBody
    , msTrailer = trailerFIX42 }
    where
-   mRejectBody = 
+   mRejectBody =
       LT.insert (tnum tRefSeqNum) tRefSeqNum $
       LT.insert (tnum tRefTagID) tRefTagID $
       LT.insert (tnum tRefMsgType) tRefMsgType $
@@ -2880,7 +2880,7 @@ mSequenceReset = FMSpec
    , msBody = mSequenceResetBody
    , msTrailer = trailerFIX42 }
    where
-   mSequenceResetBody = 
+   mSequenceResetBody =
       LT.insert (tnum tGapFillFlag) tGapFillFlag $
       LT.insert (tnum tNewSeqNo) tNewSeqNo       LT.new
 
@@ -2893,7 +2893,7 @@ mLogout = FMSpec
    , msBody = mLogoutBody
    , msTrailer = trailerFIX42 }
    where
-   mLogoutBody = 
+   mLogoutBody =
       LT.insert (tnum tText) tText $
       LT.insert (tnum tEncodedTextLen) tEncodedTextLen $
       LT.insert (tnum tEncodedText) tEncodedText       LT.new
@@ -2907,7 +2907,7 @@ mIndicationofInterest = FMSpec
    , msBody = mIndicationofInterestBody
    , msTrailer = trailerFIX42 }
    where
-   mIndicationofInterestBody = 
+   mIndicationofInterestBody =
       LT.insert (tnum tIOIid) tIOIid $
       LT.insert (tnum tIOITransType) tIOITransType $
       LT.insert (tnum tIOIRefID) tIOIRefID $
@@ -2951,7 +2951,7 @@ mIndicationofInterest = FMSpec
             { tName = "NoIOIQualifiers"
             , tnum = tnum tNoIOIQualifiers
             , tparser = gNoIOIQualifiersP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoIOIQualifiersSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoIOIQualifiersSpec''' }
 
          gNoIOIQualifiersP''' = groupP gNoIOIQualifiersSpec'''
          gNoIOIQualifiersSpec''' = FGSpec
@@ -2959,14 +2959,14 @@ mIndicationofInterest = FMSpec
             , gsSeperator = tIOIQualifier
             , gsBody = gNoIOIQualifiersBody''' }
             where
-            gNoIOIQualifiersBody''' = 
+            gNoIOIQualifiersBody''' =
                LT.new
 
          gNoRoutingIDs''' = FIXTag
             { tName = "NoRoutingIDs"
             , tnum = tnum tNoRoutingIDs
             , tparser = gNoRoutingIDsP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoRoutingIDsSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoRoutingIDsSpec''' }
 
          gNoRoutingIDsP''' = groupP gNoRoutingIDsSpec'''
          gNoRoutingIDsSpec''' = FGSpec
@@ -2974,7 +2974,7 @@ mIndicationofInterest = FMSpec
             , gsSeperator = tRoutingType
             , gsBody = gNoRoutingIDsBody''' }
             where
-            gNoRoutingIDsBody''' = 
+            gNoRoutingIDsBody''' =
                LT.insert (tnum tRoutingID) tRoutingID                LT.new
 
 
@@ -2987,7 +2987,7 @@ mAdvertisement = FMSpec
    , msBody = mAdvertisementBody
    , msTrailer = trailerFIX42 }
    where
-   mAdvertisementBody = 
+   mAdvertisementBody =
       LT.insert (tnum tAdvId) tAdvId $
       LT.insert (tnum tAdvTransType) tAdvTransType $
       LT.insert (tnum tAdvRefID) tAdvRefID $
@@ -3032,7 +3032,7 @@ mExecutionReport = FMSpec
    , msBody = mExecutionReportBody
    , msTrailer = trailerFIX42 }
    where
-   mExecutionReportBody = 
+   mExecutionReportBody =
       LT.insert (tnum tOrderID) tOrderID $
       LT.insert (tnum tSecondaryOrderID) tSecondaryOrderID $
       LT.insert (tnum tClOrdID) tClOrdID $
@@ -3130,7 +3130,7 @@ mExecutionReport = FMSpec
             { tName = "NoContraBrokers"
             , tnum = tnum tNoContraBrokers
             , tparser = gNoContraBrokersP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoContraBrokersSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoContraBrokersSpec''' }
 
          gNoContraBrokersP''' = groupP gNoContraBrokersSpec'''
          gNoContraBrokersSpec''' = FGSpec
@@ -3138,7 +3138,7 @@ mExecutionReport = FMSpec
             , gsSeperator = tContraBroker
             , gsBody = gNoContraBrokersBody''' }
             where
-            gNoContraBrokersBody''' = 
+            gNoContraBrokersBody''' =
                LT.insert (tnum tContraTrader) tContraTrader $
                LT.insert (tnum tContraTradeQty) tContraTradeQty $
                LT.insert (tnum tContraTradeTime) tContraTradeTime                LT.new
@@ -3153,7 +3153,7 @@ mOrderCancelReject = FMSpec
    , msBody = mOrderCancelRejectBody
    , msTrailer = trailerFIX42 }
    where
-   mOrderCancelRejectBody = 
+   mOrderCancelRejectBody =
       LT.insert (tnum tOrderID) tOrderID $
       LT.insert (tnum tSecondaryOrderID) tSecondaryOrderID $
       LT.insert (tnum tClOrdID) tClOrdID $
@@ -3179,7 +3179,7 @@ mLogon = FMSpec
    , msBody = mLogonBody
    , msTrailer = trailerFIX42 }
    where
-   mLogonBody = 
+   mLogonBody =
       LT.insert (tnum tEncryptMethod) tEncryptMethod $
       LT.insert (tnum tHeartBtInt) tHeartBtInt $
       LT.insert (tnum tRawDataLength) tRawDataLength $
@@ -3192,7 +3192,7 @@ mLogon = FMSpec
             { tName = "NoMsgTypes"
             , tnum = tnum tNoMsgTypes
             , tparser = gNoMsgTypesP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoMsgTypesSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoMsgTypesSpec''' }
 
          gNoMsgTypesP''' = groupP gNoMsgTypesSpec'''
          gNoMsgTypesSpec''' = FGSpec
@@ -3200,7 +3200,7 @@ mLogon = FMSpec
             , gsSeperator = tRefMsgType
             , gsBody = gNoMsgTypesBody''' }
             where
-            gNoMsgTypesBody''' = 
+            gNoMsgTypesBody''' =
                LT.insert (tnum tMsgDirection) tMsgDirection                LT.new
 
 
@@ -3213,7 +3213,7 @@ mNews = FMSpec
    , msBody = mNewsBody
    , msTrailer = trailerFIX42 }
    where
-   mNewsBody = 
+   mNewsBody =
       LT.insert (tnum tOrigTime) tOrigTime $
       LT.insert (tnum tUrgency) tUrgency $
       LT.insert (tnum tHeadline) tHeadline $
@@ -3230,7 +3230,7 @@ mNews = FMSpec
             { tName = "LinesOfText"
             , tnum = tnum tLinesOfText
             , tparser = gLinesOfTextP'''
-            , arbitraryValue = arbibtraryFIXGroup gLinesOfTextSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gLinesOfTextSpec''' }
 
          gLinesOfTextP''' = groupP gLinesOfTextSpec'''
          gLinesOfTextSpec''' = FGSpec
@@ -3238,7 +3238,7 @@ mNews = FMSpec
             , gsSeperator = tText
             , gsBody = gLinesOfTextBody''' }
             where
-            gLinesOfTextBody''' = 
+            gLinesOfTextBody''' =
                LT.insert (tnum tEncodedTextLen) tEncodedTextLen $
                LT.insert (tnum tEncodedText) tEncodedText                LT.new
 
@@ -3246,7 +3246,7 @@ mNews = FMSpec
             { tName = "NoRelatedSym"
             , tnum = tnum tNoRelatedSym
             , tparser = gNoRelatedSymP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoRelatedSymSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoRelatedSymSpec''' }
 
          gNoRelatedSymP''' = groupP gNoRelatedSymSpec'''
          gNoRelatedSymSpec''' = FGSpec
@@ -3254,7 +3254,7 @@ mNews = FMSpec
             , gsSeperator = tRelatdSym
             , gsBody = gNoRelatedSymBody''' }
             where
-            gNoRelatedSymBody''' = 
+            gNoRelatedSymBody''' =
                LT.insert (tnum tSymbolSfx) tSymbolSfx $
                LT.insert (tnum tSecurityID) tSecurityID $
                LT.insert (tnum tIDSource) tIDSource $
@@ -3278,7 +3278,7 @@ mNews = FMSpec
             { tName = "NoRoutingIDs"
             , tnum = tnum tNoRoutingIDs
             , tparser = gNoRoutingIDsP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoRoutingIDsSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoRoutingIDsSpec''' }
 
          gNoRoutingIDsP''' = groupP gNoRoutingIDsSpec'''
          gNoRoutingIDsSpec''' = FGSpec
@@ -3286,7 +3286,7 @@ mNews = FMSpec
             , gsSeperator = tRoutingType
             , gsBody = gNoRoutingIDsBody''' }
             where
-            gNoRoutingIDsBody''' = 
+            gNoRoutingIDsBody''' =
                LT.insert (tnum tRoutingID) tRoutingID                LT.new
 
 
@@ -3299,7 +3299,7 @@ mEmail = FMSpec
    , msBody = mEmailBody
    , msTrailer = trailerFIX42 }
    where
-   mEmailBody = 
+   mEmailBody =
       LT.insert (tnum tEmailThreadID) tEmailThreadID $
       LT.insert (tnum tEmailType) tEmailType $
       LT.insert (tnum tOrigTime) tOrigTime $
@@ -3318,7 +3318,7 @@ mEmail = FMSpec
             { tName = "LinesOfText"
             , tnum = tnum tLinesOfText
             , tparser = gLinesOfTextP'''
-            , arbitraryValue = arbibtraryFIXGroup gLinesOfTextSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gLinesOfTextSpec''' }
 
          gLinesOfTextP''' = groupP gLinesOfTextSpec'''
          gLinesOfTextSpec''' = FGSpec
@@ -3326,7 +3326,7 @@ mEmail = FMSpec
             , gsSeperator = tText
             , gsBody = gLinesOfTextBody''' }
             where
-            gLinesOfTextBody''' = 
+            gLinesOfTextBody''' =
                LT.insert (tnum tEncodedTextLen) tEncodedTextLen $
                LT.insert (tnum tEncodedText) tEncodedText                LT.new
 
@@ -3334,7 +3334,7 @@ mEmail = FMSpec
             { tName = "NoRelatedSym"
             , tnum = tnum tNoRelatedSym
             , tparser = gNoRelatedSymP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoRelatedSymSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoRelatedSymSpec''' }
 
          gNoRelatedSymP''' = groupP gNoRelatedSymSpec'''
          gNoRelatedSymSpec''' = FGSpec
@@ -3342,7 +3342,7 @@ mEmail = FMSpec
             , gsSeperator = tRelatdSym
             , gsBody = gNoRelatedSymBody''' }
             where
-            gNoRelatedSymBody''' = 
+            gNoRelatedSymBody''' =
                LT.insert (tnum tSymbolSfx) tSymbolSfx $
                LT.insert (tnum tSecurityID) tSecurityID $
                LT.insert (tnum tIDSource) tIDSource $
@@ -3366,7 +3366,7 @@ mEmail = FMSpec
             { tName = "NoRoutingIDs"
             , tnum = tnum tNoRoutingIDs
             , tparser = gNoRoutingIDsP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoRoutingIDsSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoRoutingIDsSpec''' }
 
          gNoRoutingIDsP''' = groupP gNoRoutingIDsSpec'''
          gNoRoutingIDsSpec''' = FGSpec
@@ -3374,7 +3374,7 @@ mEmail = FMSpec
             , gsSeperator = tRoutingType
             , gsBody = gNoRoutingIDsBody''' }
             where
-            gNoRoutingIDsBody''' = 
+            gNoRoutingIDsBody''' =
                LT.insert (tnum tRoutingID) tRoutingID                LT.new
 
 
@@ -3387,7 +3387,7 @@ mNewOrderSingle = FMSpec
    , msBody = mNewOrderSingleBody
    , msTrailer = trailerFIX42 }
    where
-   mNewOrderSingleBody = 
+   mNewOrderSingleBody =
       LT.insert (tnum tClOrdID) tClOrdID $
       LT.insert (tnum tClientID) tClientID $
       LT.insert (tnum tExecBroker) tExecBroker $
@@ -3464,7 +3464,7 @@ mNewOrderSingle = FMSpec
             { tName = "NoAllocs"
             , tnum = tnum tNoAllocs
             , tparser = gNoAllocsP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoAllocsSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoAllocsSpec''' }
 
          gNoAllocsP''' = groupP gNoAllocsSpec'''
          gNoAllocsSpec''' = FGSpec
@@ -3472,14 +3472,14 @@ mNewOrderSingle = FMSpec
             , gsSeperator = tAllocAccount
             , gsBody = gNoAllocsBody''' }
             where
-            gNoAllocsBody''' = 
+            gNoAllocsBody''' =
                LT.insert (tnum tAllocShares) tAllocShares                LT.new
 
          gNoTradingSessions''' = FIXTag
             { tName = "NoTradingSessions"
             , tnum = tnum tNoTradingSessions
             , tparser = gNoTradingSessionsP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoTradingSessionsSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoTradingSessionsSpec''' }
 
          gNoTradingSessionsP''' = groupP gNoTradingSessionsSpec'''
          gNoTradingSessionsSpec''' = FGSpec
@@ -3487,7 +3487,7 @@ mNewOrderSingle = FMSpec
             , gsSeperator = tTradingSessionID
             , gsBody = gNoTradingSessionsBody''' }
             where
-            gNoTradingSessionsBody''' = 
+            gNoTradingSessionsBody''' =
                LT.new
 
 
@@ -3500,7 +3500,7 @@ mNewOrderList = FMSpec
    , msBody = mNewOrderListBody
    , msTrailer = trailerFIX42 }
    where
-   mNewOrderListBody = 
+   mNewOrderListBody =
       LT.insert (tnum tListID) tListID $
       LT.insert (tnum tBidID) tBidID $
       LT.insert (tnum tClientBidID) tClientBidID $
@@ -3518,7 +3518,7 @@ mNewOrderList = FMSpec
             { tName = "NoOrders"
             , tnum = tnum tNoOrders
             , tparser = gNoOrdersP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoOrdersSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoOrdersSpec''' }
 
          gNoOrdersP''' = groupP gNoOrdersSpec'''
          gNoOrdersSpec''' = FGSpec
@@ -3526,7 +3526,7 @@ mNewOrderList = FMSpec
             , gsSeperator = tClOrdID
             , gsBody = gNoOrdersBody''' }
             where
-            gNoOrdersBody''' = 
+            gNoOrdersBody''' =
                LT.insert (tnum tListSeqNo) tListSeqNo $
                LT.insert (tnum tSettlInstMode) tSettlInstMode $
                LT.insert (tnum tClientID) tClientID $
@@ -3605,7 +3605,7 @@ mNewOrderList = FMSpec
                      { tName = "NoAllocs"
                      , tnum = tnum tNoAllocs
                      , tparser = gNoAllocsP''''''
-                     , arbitraryValue = arbibtraryFIXGroup gNoAllocsSpec'''''' }
+                     , arbitraryValue = arbitraryFIXGroup gNoAllocsSpec'''''' }
 
                   gNoAllocsP'''''' = groupP gNoAllocsSpec''''''
                   gNoAllocsSpec'''''' = FGSpec
@@ -3613,14 +3613,14 @@ mNewOrderList = FMSpec
                      , gsSeperator = tAllocAccount
                      , gsBody = gNoAllocsBody'''''' }
                      where
-                     gNoAllocsBody'''''' = 
+                     gNoAllocsBody'''''' =
                         LT.insert (tnum tAllocShares) tAllocShares                         LT.new
 
                   gNoTradingSessions'''''' = FIXTag
                      { tName = "NoTradingSessions"
                      , tnum = tnum tNoTradingSessions
                      , tparser = gNoTradingSessionsP''''''
-                     , arbitraryValue = arbibtraryFIXGroup gNoTradingSessionsSpec'''''' }
+                     , arbitraryValue = arbitraryFIXGroup gNoTradingSessionsSpec'''''' }
 
                   gNoTradingSessionsP'''''' = groupP gNoTradingSessionsSpec''''''
                   gNoTradingSessionsSpec'''''' = FGSpec
@@ -3628,7 +3628,7 @@ mNewOrderList = FMSpec
                      , gsSeperator = tTradingSessionID
                      , gsBody = gNoTradingSessionsBody'''''' }
                      where
-                     gNoTradingSessionsBody'''''' = 
+                     gNoTradingSessionsBody'''''' =
                         LT.new
 
 
@@ -3642,7 +3642,7 @@ mOrderCancelRequest = FMSpec
    , msBody = mOrderCancelRequestBody
    , msTrailer = trailerFIX42 }
    where
-   mOrderCancelRequestBody = 
+   mOrderCancelRequestBody =
       LT.insert (tnum tOrigClOrdID) tOrigClOrdID $
       LT.insert (tnum tOrderID) tOrderID $
       LT.insert (tnum tClOrdID) tClOrdID $
@@ -3688,7 +3688,7 @@ mOrderCancelReplaceRequest = FMSpec
    , msBody = mOrderCancelReplaceRequestBody
    , msTrailer = trailerFIX42 }
    where
-   mOrderCancelReplaceRequestBody = 
+   mOrderCancelReplaceRequestBody =
       LT.insert (tnum tOrderID) tOrderID $
       LT.insert (tnum tClientID) tClientID $
       LT.insert (tnum tExecBroker) tExecBroker $
@@ -3764,7 +3764,7 @@ mOrderCancelReplaceRequest = FMSpec
             { tName = "NoAllocs"
             , tnum = tnum tNoAllocs
             , tparser = gNoAllocsP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoAllocsSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoAllocsSpec''' }
 
          gNoAllocsP''' = groupP gNoAllocsSpec'''
          gNoAllocsSpec''' = FGSpec
@@ -3772,14 +3772,14 @@ mOrderCancelReplaceRequest = FMSpec
             , gsSeperator = tAllocAccount
             , gsBody = gNoAllocsBody''' }
             where
-            gNoAllocsBody''' = 
+            gNoAllocsBody''' =
                LT.insert (tnum tAllocShares) tAllocShares                LT.new
 
          gNoTradingSessions''' = FIXTag
             { tName = "NoTradingSessions"
             , tnum = tnum tNoTradingSessions
             , tparser = gNoTradingSessionsP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoTradingSessionsSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoTradingSessionsSpec''' }
 
          gNoTradingSessionsP''' = groupP gNoTradingSessionsSpec'''
          gNoTradingSessionsSpec''' = FGSpec
@@ -3787,7 +3787,7 @@ mOrderCancelReplaceRequest = FMSpec
             , gsSeperator = tTradingSessionID
             , gsBody = gNoTradingSessionsBody''' }
             where
-            gNoTradingSessionsBody''' = 
+            gNoTradingSessionsBody''' =
                LT.new
 
 
@@ -3800,7 +3800,7 @@ mOrderStatusRequest = FMSpec
    , msBody = mOrderStatusRequestBody
    , msTrailer = trailerFIX42 }
    where
-   mOrderStatusRequestBody = 
+   mOrderStatusRequestBody =
       LT.insert (tnum tOrderID) tOrderID $
       LT.insert (tnum tClOrdID) tClOrdID $
       LT.insert (tnum tClientID) tClientID $
@@ -3836,7 +3836,7 @@ mAllocation = FMSpec
    , msBody = mAllocationBody
    , msTrailer = trailerFIX42 }
    where
-   mAllocationBody = 
+   mAllocationBody =
       LT.insert (tnum tAllocID) tAllocID $
       LT.insert (tnum tAllocTransType) tAllocTransType $
       LT.insert (tnum tRefAllocID) tRefAllocID $
@@ -3888,7 +3888,7 @@ mAllocation = FMSpec
             { tName = "NoAllocs"
             , tnum = tnum tNoAllocs
             , tparser = gNoAllocsP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoAllocsSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoAllocsSpec''' }
 
          gNoAllocsP''' = groupP gNoAllocsSpec'''
          gNoAllocsSpec''' = FGSpec
@@ -3896,7 +3896,7 @@ mAllocation = FMSpec
             , gsSeperator = tAllocAccount
             , gsBody = gNoAllocsBody''' }
             where
-            gNoAllocsBody''' = 
+            gNoAllocsBody''' =
                LT.insert (tnum tAllocPrice) tAllocPrice $
                LT.insert (tnum tAllocShares) tAllocShares $
                LT.insert (tnum tProcessCode) tProcessCode $
@@ -3924,7 +3924,7 @@ mAllocation = FMSpec
                      { tName = "NoMiscFees"
                      , tnum = tnum tNoMiscFees
                      , tparser = gNoMiscFeesP''''''
-                     , arbitraryValue = arbibtraryFIXGroup gNoMiscFeesSpec'''''' }
+                     , arbitraryValue = arbitraryFIXGroup gNoMiscFeesSpec'''''' }
 
                   gNoMiscFeesP'''''' = groupP gNoMiscFeesSpec''''''
                   gNoMiscFeesSpec'''''' = FGSpec
@@ -3932,7 +3932,7 @@ mAllocation = FMSpec
                      , gsSeperator = tMiscFeeAmt
                      , gsBody = gNoMiscFeesBody'''''' }
                      where
-                     gNoMiscFeesBody'''''' = 
+                     gNoMiscFeesBody'''''' =
                         LT.insert (tnum tMiscFeeCurr) tMiscFeeCurr $
                         LT.insert (tnum tMiscFeeType) tMiscFeeType                         LT.new
 
@@ -3941,7 +3941,7 @@ mAllocation = FMSpec
             { tName = "NoExecs"
             , tnum = tnum tNoExecs
             , tparser = gNoExecsP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoExecsSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoExecsSpec''' }
 
          gNoExecsP''' = groupP gNoExecsSpec'''
          gNoExecsSpec''' = FGSpec
@@ -3949,7 +3949,7 @@ mAllocation = FMSpec
             , gsSeperator = tLastShares
             , gsBody = gNoExecsBody''' }
             where
-            gNoExecsBody''' = 
+            gNoExecsBody''' =
                LT.insert (tnum tExecID) tExecID $
                LT.insert (tnum tLastPx) tLastPx $
                LT.insert (tnum tLastCapacity) tLastCapacity                LT.new
@@ -3958,7 +3958,7 @@ mAllocation = FMSpec
             { tName = "NoOrders"
             , tnum = tnum tNoOrders
             , tparser = gNoOrdersP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoOrdersSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoOrdersSpec''' }
 
          gNoOrdersP''' = groupP gNoOrdersSpec'''
          gNoOrdersSpec''' = FGSpec
@@ -3966,7 +3966,7 @@ mAllocation = FMSpec
             , gsSeperator = tClOrdID
             , gsBody = gNoOrdersBody''' }
             where
-            gNoOrdersBody''' = 
+            gNoOrdersBody''' =
                LT.insert (tnum tOrderID) tOrderID $
                LT.insert (tnum tSecondaryOrderID) tSecondaryOrderID $
                LT.insert (tnum tListID) tListID $
@@ -3982,7 +3982,7 @@ mListCancelRequest = FMSpec
    , msBody = mListCancelRequestBody
    , msTrailer = trailerFIX42 }
    where
-   mListCancelRequestBody = 
+   mListCancelRequestBody =
       LT.insert (tnum tListID) tListID $
       LT.insert (tnum tTransactTime) tTransactTime $
       LT.insert (tnum tText) tText $
@@ -3998,7 +3998,7 @@ mListExecute = FMSpec
    , msBody = mListExecuteBody
    , msTrailer = trailerFIX42 }
    where
-   mListExecuteBody = 
+   mListExecuteBody =
       LT.insert (tnum tListID) tListID $
       LT.insert (tnum tClientBidID) tClientBidID $
       LT.insert (tnum tBidID) tBidID $
@@ -4016,7 +4016,7 @@ mListStatusRequest = FMSpec
    , msBody = mListStatusRequestBody
    , msTrailer = trailerFIX42 }
    where
-   mListStatusRequestBody = 
+   mListStatusRequestBody =
       LT.insert (tnum tListID) tListID $
       LT.insert (tnum tText) tText $
       LT.insert (tnum tEncodedTextLen) tEncodedTextLen $
@@ -4031,7 +4031,7 @@ mListStatus = FMSpec
    , msBody = mListStatusBody
    , msTrailer = trailerFIX42 }
    where
-   mListStatusBody = 
+   mListStatusBody =
       LT.insert (tnum tListID) tListID $
       LT.insert (tnum tListStatusType) tListStatusType $
       LT.insert (tnum tNoRpts) tNoRpts $
@@ -4048,7 +4048,7 @@ mListStatus = FMSpec
             { tName = "NoOrders"
             , tnum = tnum tNoOrders
             , tparser = gNoOrdersP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoOrdersSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoOrdersSpec''' }
 
          gNoOrdersP''' = groupP gNoOrdersSpec'''
          gNoOrdersSpec''' = FGSpec
@@ -4056,7 +4056,7 @@ mListStatus = FMSpec
             , gsSeperator = tClOrdID
             , gsBody = gNoOrdersBody''' }
             where
-            gNoOrdersBody''' = 
+            gNoOrdersBody''' =
                LT.insert (tnum tCumQty) tCumQty $
                LT.insert (tnum tOrdStatus) tOrdStatus $
                LT.insert (tnum tLeavesQty) tLeavesQty $
@@ -4077,7 +4077,7 @@ mAllocationACK = FMSpec
    , msBody = mAllocationACKBody
    , msTrailer = trailerFIX42 }
    where
-   mAllocationACKBody = 
+   mAllocationACKBody =
       LT.insert (tnum tClientID) tClientID $
       LT.insert (tnum tExecBroker) tExecBroker $
       LT.insert (tnum tAllocID) tAllocID $
@@ -4098,7 +4098,7 @@ mDontKnowTrade = FMSpec
    , msBody = mDontKnowTradeBody
    , msTrailer = trailerFIX42 }
    where
-   mDontKnowTradeBody = 
+   mDontKnowTradeBody =
       LT.insert (tnum tOrderID) tOrderID $
       LT.insert (tnum tExecID) tExecID $
       LT.insert (tnum tDKReason) tDKReason $
@@ -4139,7 +4139,7 @@ mQuoteRequest = FMSpec
    , msBody = mQuoteRequestBody
    , msTrailer = trailerFIX42 }
    where
-   mQuoteRequestBody = 
+   mQuoteRequestBody =
       LT.insert (tnum tQuoteReqID) tQuoteReqID $
       LT.insert (tnum tNoRelatedSym) gNoRelatedSym'''       LT.new
       where
@@ -4147,7 +4147,7 @@ mQuoteRequest = FMSpec
             { tName = "NoRelatedSym"
             , tnum = tnum tNoRelatedSym
             , tparser = gNoRelatedSymP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoRelatedSymSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoRelatedSymSpec''' }
 
          gNoRelatedSymP''' = groupP gNoRelatedSymSpec'''
          gNoRelatedSymSpec''' = FGSpec
@@ -4155,7 +4155,7 @@ mQuoteRequest = FMSpec
             , gsSeperator = tSymbol
             , gsBody = gNoRelatedSymBody''' }
             where
-            gNoRelatedSymBody''' = 
+            gNoRelatedSymBody''' =
                LT.insert (tnum tSymbolSfx) tSymbolSfx $
                LT.insert (tnum tSecurityID) tSecurityID $
                LT.insert (tnum tIDSource) tIDSource $
@@ -4197,7 +4197,7 @@ mQuote = FMSpec
    , msBody = mQuoteBody
    , msTrailer = trailerFIX42 }
    where
-   mQuoteBody = 
+   mQuoteBody =
       LT.insert (tnum tQuoteReqID) tQuoteReqID $
       LT.insert (tnum tQuoteID) tQuoteID $
       LT.insert (tnum tQuoteResponseLevel) tQuoteResponseLevel $
@@ -4246,7 +4246,7 @@ mSettlementInstructions = FMSpec
    , msBody = mSettlementInstructionsBody
    , msTrailer = trailerFIX42 }
    where
-   mSettlementInstructionsBody = 
+   mSettlementInstructionsBody =
       LT.insert (tnum tSettlInstID) tSettlInstID $
       LT.insert (tnum tSettlInstTransType) tSettlInstTransType $
       LT.insert (tnum tSettlInstRefID) tSettlInstRefID $
@@ -4293,7 +4293,7 @@ mMarketDataRequest = FMSpec
    , msBody = mMarketDataRequestBody
    , msTrailer = trailerFIX42 }
    where
-   mMarketDataRequestBody = 
+   mMarketDataRequestBody =
       LT.insert (tnum tMDReqID) tMDReqID $
       LT.insert (tnum tSubscriptionRequestType) tSubscriptionRequestType $
       LT.insert (tnum tMarketDepth) tMarketDepth $
@@ -4306,7 +4306,7 @@ mMarketDataRequest = FMSpec
             { tName = "NoMDEntryTypes"
             , tnum = tnum tNoMDEntryTypes
             , tparser = gNoMDEntryTypesP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoMDEntryTypesSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoMDEntryTypesSpec''' }
 
          gNoMDEntryTypesP''' = groupP gNoMDEntryTypesSpec'''
          gNoMDEntryTypesSpec''' = FGSpec
@@ -4314,14 +4314,14 @@ mMarketDataRequest = FMSpec
             , gsSeperator = tMDEntryType
             , gsBody = gNoMDEntryTypesBody''' }
             where
-            gNoMDEntryTypesBody''' = 
+            gNoMDEntryTypesBody''' =
                LT.new
 
          gNoRelatedSym''' = FIXTag
             { tName = "NoRelatedSym"
             , tnum = tnum tNoRelatedSym
             , tparser = gNoRelatedSymP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoRelatedSymSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoRelatedSymSpec''' }
 
          gNoRelatedSymP''' = groupP gNoRelatedSymSpec'''
          gNoRelatedSymSpec''' = FGSpec
@@ -4329,7 +4329,7 @@ mMarketDataRequest = FMSpec
             , gsSeperator = tSymbol
             , gsBody = gNoRelatedSymBody''' }
             where
-            gNoRelatedSymBody''' = 
+            gNoRelatedSymBody''' =
                LT.insert (tnum tSymbolSfx) tSymbolSfx $
                LT.insert (tnum tSecurityID) tSecurityID $
                LT.insert (tnum tIDSource) tIDSource $
@@ -4360,7 +4360,7 @@ mMarketDataSnapshotFullRefresh = FMSpec
    , msBody = mMarketDataSnapshotFullRefreshBody
    , msTrailer = trailerFIX42 }
    where
-   mMarketDataSnapshotFullRefreshBody = 
+   mMarketDataSnapshotFullRefreshBody =
       LT.insert (tnum tMDReqID) tMDReqID $
       LT.insert (tnum tSymbol) tSymbol $
       LT.insert (tnum tSymbolSfx) tSymbolSfx $
@@ -4390,7 +4390,7 @@ mMarketDataSnapshotFullRefresh = FMSpec
             { tName = "NoMDEntries"
             , tnum = tnum tNoMDEntries
             , tparser = gNoMDEntriesP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoMDEntriesSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoMDEntriesSpec''' }
 
          gNoMDEntriesP''' = groupP gNoMDEntriesSpec'''
          gNoMDEntriesSpec''' = FGSpec
@@ -4398,7 +4398,7 @@ mMarketDataSnapshotFullRefresh = FMSpec
             , gsSeperator = tMDEntryType
             , gsBody = gNoMDEntriesBody''' }
             where
-            gNoMDEntriesBody''' = 
+            gNoMDEntriesBody''' =
                LT.insert (tnum tMDEntryPx) tMDEntryPx $
                LT.insert (tnum tCurrency) tCurrency $
                LT.insert (tnum tMDEntrySize) tMDEntrySize $
@@ -4439,7 +4439,7 @@ mMarketDataIncrementalRefresh = FMSpec
    , msBody = mMarketDataIncrementalRefreshBody
    , msTrailer = trailerFIX42 }
    where
-   mMarketDataIncrementalRefreshBody = 
+   mMarketDataIncrementalRefreshBody =
       LT.insert (tnum tMDReqID) tMDReqID $
       LT.insert (tnum tNoMDEntries) gNoMDEntries'''       LT.new
       where
@@ -4447,7 +4447,7 @@ mMarketDataIncrementalRefresh = FMSpec
             { tName = "NoMDEntries"
             , tnum = tnum tNoMDEntries
             , tparser = gNoMDEntriesP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoMDEntriesSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoMDEntriesSpec''' }
 
          gNoMDEntriesP''' = groupP gNoMDEntriesSpec'''
          gNoMDEntriesSpec''' = FGSpec
@@ -4455,7 +4455,7 @@ mMarketDataIncrementalRefresh = FMSpec
             , gsSeperator = tMDUpdateAction
             , gsBody = gNoMDEntriesBody''' }
             where
-            gNoMDEntriesBody''' = 
+            gNoMDEntriesBody''' =
                LT.insert (tnum tDeleteReason) tDeleteReason $
                LT.insert (tnum tMDEntryType) tMDEntryType $
                LT.insert (tnum tMDEntryID) tMDEntryID $
@@ -4522,7 +4522,7 @@ mMarketDataRequestReject = FMSpec
    , msBody = mMarketDataRequestRejectBody
    , msTrailer = trailerFIX42 }
    where
-   mMarketDataRequestRejectBody = 
+   mMarketDataRequestRejectBody =
       LT.insert (tnum tMDReqID) tMDReqID $
       LT.insert (tnum tMDReqRejReason) tMDReqRejReason $
       LT.insert (tnum tText) tText $
@@ -4538,7 +4538,7 @@ mQuoteCancel = FMSpec
    , msBody = mQuoteCancelBody
    , msTrailer = trailerFIX42 }
    where
-   mQuoteCancelBody = 
+   mQuoteCancelBody =
       LT.insert (tnum tQuoteReqID) tQuoteReqID $
       LT.insert (tnum tQuoteID) tQuoteID $
       LT.insert (tnum tQuoteCancelType) tQuoteCancelType $
@@ -4550,7 +4550,7 @@ mQuoteCancel = FMSpec
             { tName = "NoQuoteEntries"
             , tnum = tnum tNoQuoteEntries
             , tparser = gNoQuoteEntriesP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoQuoteEntriesSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoQuoteEntriesSpec''' }
 
          gNoQuoteEntriesP''' = groupP gNoQuoteEntriesSpec'''
          gNoQuoteEntriesSpec''' = FGSpec
@@ -4558,7 +4558,7 @@ mQuoteCancel = FMSpec
             , gsSeperator = tSymbol
             , gsBody = gNoQuoteEntriesBody''' }
             where
-            gNoQuoteEntriesBody''' = 
+            gNoQuoteEntriesBody''' =
                LT.insert (tnum tSymbolSfx) tSymbolSfx $
                LT.insert (tnum tSecurityID) tSecurityID $
                LT.insert (tnum tIDSource) tIDSource $
@@ -4589,7 +4589,7 @@ mQuoteStatusRequest = FMSpec
    , msBody = mQuoteStatusRequestBody
    , msTrailer = trailerFIX42 }
    where
-   mQuoteStatusRequestBody = 
+   mQuoteStatusRequestBody =
       LT.insert (tnum tQuoteID) tQuoteID $
       LT.insert (tnum tSymbol) tSymbol $
       LT.insert (tnum tSymbolSfx) tSymbolSfx $
@@ -4622,7 +4622,7 @@ mQuoteAcknowledgement = FMSpec
    , msBody = mQuoteAcknowledgementBody
    , msTrailer = trailerFIX42 }
    where
-   mQuoteAcknowledgementBody = 
+   mQuoteAcknowledgementBody =
       LT.insert (tnum tQuoteReqID) tQuoteReqID $
       LT.insert (tnum tQuoteID) tQuoteID $
       LT.insert (tnum tQuoteAckStatus) tQuoteAckStatus $
@@ -4636,7 +4636,7 @@ mQuoteAcknowledgement = FMSpec
             { tName = "NoQuoteSets"
             , tnum = tnum tNoQuoteSets
             , tparser = gNoQuoteSetsP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoQuoteSetsSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoQuoteSetsSpec''' }
 
          gNoQuoteSetsP''' = groupP gNoQuoteSetsSpec'''
          gNoQuoteSetsSpec''' = FGSpec
@@ -4644,7 +4644,7 @@ mQuoteAcknowledgement = FMSpec
             , gsSeperator = tQuoteSetID
             , gsBody = gNoQuoteSetsBody''' }
             where
-            gNoQuoteSetsBody''' = 
+            gNoQuoteSetsBody''' =
                LT.insert (tnum tUnderlyingSymbol) tUnderlyingSymbol $
                LT.insert (tnum tUnderlyingSymbolSfx) tUnderlyingSymbolSfx $
                LT.insert (tnum tUnderlyingSecurityID) tUnderlyingSecurityID $
@@ -4671,7 +4671,7 @@ mQuoteAcknowledgement = FMSpec
                      { tName = "NoQuoteEntries"
                      , tnum = tnum tNoQuoteEntries
                      , tparser = gNoQuoteEntriesP''''''
-                     , arbitraryValue = arbibtraryFIXGroup gNoQuoteEntriesSpec'''''' }
+                     , arbitraryValue = arbitraryFIXGroup gNoQuoteEntriesSpec'''''' }
 
                   gNoQuoteEntriesP'''''' = groupP gNoQuoteEntriesSpec''''''
                   gNoQuoteEntriesSpec'''''' = FGSpec
@@ -4679,7 +4679,7 @@ mQuoteAcknowledgement = FMSpec
                      , gsSeperator = tQuoteEntryID
                      , gsBody = gNoQuoteEntriesBody'''''' }
                      where
-                     gNoQuoteEntriesBody'''''' = 
+                     gNoQuoteEntriesBody'''''' =
                         LT.insert (tnum tSymbol) tSymbol $
                         LT.insert (tnum tSymbolSfx) tSymbolSfx $
                         LT.insert (tnum tSecurityID) tSecurityID $
@@ -4712,7 +4712,7 @@ mSecurityDefinitionRequest = FMSpec
    , msBody = mSecurityDefinitionRequestBody
    , msTrailer = trailerFIX42 }
    where
-   mSecurityDefinitionRequestBody = 
+   mSecurityDefinitionRequestBody =
       LT.insert (tnum tSecurityReqID) tSecurityReqID $
       LT.insert (tnum tSecurityRequestType) tSecurityRequestType $
       LT.insert (tnum tSymbol) tSymbol $
@@ -4745,7 +4745,7 @@ mSecurityDefinitionRequest = FMSpec
             { tName = "NoRelatedSym"
             , tnum = tnum tNoRelatedSym
             , tparser = gNoRelatedSymP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoRelatedSymSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoRelatedSymSpec''' }
 
          gNoRelatedSymP''' = groupP gNoRelatedSymSpec'''
          gNoRelatedSymSpec''' = FGSpec
@@ -4753,7 +4753,7 @@ mSecurityDefinitionRequest = FMSpec
             , gsSeperator = tUnderlyingSymbol
             , gsBody = gNoRelatedSymBody''' }
             where
-            gNoRelatedSymBody''' = 
+            gNoRelatedSymBody''' =
                LT.insert (tnum tUnderlyingSymbolSfx) tUnderlyingSymbolSfx $
                LT.insert (tnum tUnderlyingSecurityID) tUnderlyingSecurityID $
                LT.insert (tnum tUnderlyingIDSource) tUnderlyingIDSource $
@@ -4786,7 +4786,7 @@ mSecurityDefinition = FMSpec
    , msBody = mSecurityDefinitionBody
    , msTrailer = trailerFIX42 }
    where
-   mSecurityDefinitionBody = 
+   mSecurityDefinitionBody =
       LT.insert (tnum tSecurityReqID) tSecurityReqID $
       LT.insert (tnum tSecurityResponseID) tSecurityResponseID $
       LT.insert (tnum tSecurityResponseType) tSecurityResponseType $
@@ -4821,7 +4821,7 @@ mSecurityDefinition = FMSpec
             { tName = "NoRelatedSym"
             , tnum = tnum tNoRelatedSym
             , tparser = gNoRelatedSymP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoRelatedSymSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoRelatedSymSpec''' }
 
          gNoRelatedSymP''' = groupP gNoRelatedSymSpec'''
          gNoRelatedSymSpec''' = FGSpec
@@ -4829,7 +4829,7 @@ mSecurityDefinition = FMSpec
             , gsSeperator = tUnderlyingSymbol
             , gsBody = gNoRelatedSymBody''' }
             where
-            gNoRelatedSymBody''' = 
+            gNoRelatedSymBody''' =
                LT.insert (tnum tUnderlyingSymbolSfx) tUnderlyingSymbolSfx $
                LT.insert (tnum tUnderlyingSecurityID) tUnderlyingSecurityID $
                LT.insert (tnum tUnderlyingIDSource) tUnderlyingIDSource $
@@ -4862,7 +4862,7 @@ mSecurityStatusRequest = FMSpec
    , msBody = mSecurityStatusRequestBody
    , msTrailer = trailerFIX42 }
    where
-   mSecurityStatusRequestBody = 
+   mSecurityStatusRequestBody =
       LT.insert (tnum tSecurityStatusReqID) tSecurityStatusReqID $
       LT.insert (tnum tSymbol) tSymbol $
       LT.insert (tnum tSymbolSfx) tSymbolSfx $
@@ -4896,7 +4896,7 @@ mSecurityStatus = FMSpec
    , msBody = mSecurityStatusBody
    , msTrailer = trailerFIX42 }
    where
-   mSecurityStatusBody = 
+   mSecurityStatusBody =
       LT.insert (tnum tSecurityStatusReqID) tSecurityStatusReqID $
       LT.insert (tnum tSymbol) tSymbol $
       LT.insert (tnum tSymbolSfx) tSymbolSfx $
@@ -4943,7 +4943,7 @@ mTradingSessionStatusRequest = FMSpec
    , msBody = mTradingSessionStatusRequestBody
    , msTrailer = trailerFIX42 }
    where
-   mTradingSessionStatusRequestBody = 
+   mTradingSessionStatusRequestBody =
       LT.insert (tnum tTradSesReqID) tTradSesReqID $
       LT.insert (tnum tTradingSessionID) tTradingSessionID $
       LT.insert (tnum tTradSesMethod) tTradSesMethod $
@@ -4959,7 +4959,7 @@ mTradingSessionStatus = FMSpec
    , msBody = mTradingSessionStatusBody
    , msTrailer = trailerFIX42 }
    where
-   mTradingSessionStatusBody = 
+   mTradingSessionStatusBody =
       LT.insert (tnum tTradSesReqID) tTradSesReqID $
       LT.insert (tnum tTradingSessionID) tTradingSessionID $
       LT.insert (tnum tTradSesMethod) tTradSesMethod $
@@ -4985,7 +4985,7 @@ mMassQuote = FMSpec
    , msBody = mMassQuoteBody
    , msTrailer = trailerFIX42 }
    where
-   mMassQuoteBody = 
+   mMassQuoteBody =
       LT.insert (tnum tQuoteReqID) tQuoteReqID $
       LT.insert (tnum tQuoteID) tQuoteID $
       LT.insert (tnum tQuoteResponseLevel) tQuoteResponseLevel $
@@ -4997,7 +4997,7 @@ mMassQuote = FMSpec
             { tName = "NoQuoteSets"
             , tnum = tnum tNoQuoteSets
             , tparser = gNoQuoteSetsP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoQuoteSetsSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoQuoteSetsSpec''' }
 
          gNoQuoteSetsP''' = groupP gNoQuoteSetsSpec'''
          gNoQuoteSetsSpec''' = FGSpec
@@ -5005,7 +5005,7 @@ mMassQuote = FMSpec
             , gsSeperator = tQuoteSetID
             , gsBody = gNoQuoteSetsBody''' }
             where
-            gNoQuoteSetsBody''' = 
+            gNoQuoteSetsBody''' =
                LT.insert (tnum tUnderlyingSymbol) tUnderlyingSymbol $
                LT.insert (tnum tUnderlyingSymbolSfx) tUnderlyingSymbolSfx $
                LT.insert (tnum tUnderlyingSecurityID) tUnderlyingSecurityID $
@@ -5033,7 +5033,7 @@ mMassQuote = FMSpec
                      { tName = "NoQuoteEntries"
                      , tnum = tnum tNoQuoteEntries
                      , tparser = gNoQuoteEntriesP''''''
-                     , arbitraryValue = arbibtraryFIXGroup gNoQuoteEntriesSpec'''''' }
+                     , arbitraryValue = arbitraryFIXGroup gNoQuoteEntriesSpec'''''' }
 
                   gNoQuoteEntriesP'''''' = groupP gNoQuoteEntriesSpec''''''
                   gNoQuoteEntriesSpec'''''' = FGSpec
@@ -5041,7 +5041,7 @@ mMassQuote = FMSpec
                      , gsSeperator = tQuoteEntryID
                      , gsBody = gNoQuoteEntriesBody'''''' }
                      where
-                     gNoQuoteEntriesBody'''''' = 
+                     gNoQuoteEntriesBody'''''' =
                         LT.insert (tnum tSymbol) tSymbol $
                         LT.insert (tnum tSymbolSfx) tSymbolSfx $
                         LT.insert (tnum tSecurityID) tSecurityID $
@@ -5089,7 +5089,7 @@ mBusinessMessageReject = FMSpec
    , msBody = mBusinessMessageRejectBody
    , msTrailer = trailerFIX42 }
    where
-   mBusinessMessageRejectBody = 
+   mBusinessMessageRejectBody =
       LT.insert (tnum tRefSeqNum) tRefSeqNum $
       LT.insert (tnum tRefMsgType) tRefMsgType $
       LT.insert (tnum tBusinessRejectRefID) tBusinessRejectRefID $
@@ -5107,7 +5107,7 @@ mBidRequest = FMSpec
    , msBody = mBidRequestBody
    , msTrailer = trailerFIX42 }
    where
-   mBidRequestBody = 
+   mBidRequestBody =
       LT.insert (tnum tBidID) tBidID $
       LT.insert (tnum tClientBidID) tClientBidID $
       LT.insert (tnum tBidRequestTransType) tBidRequestTransType $
@@ -5142,7 +5142,7 @@ mBidRequest = FMSpec
             { tName = "NoBidComponents"
             , tnum = tnum tNoBidComponents
             , tparser = gNoBidComponentsP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoBidComponentsSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoBidComponentsSpec''' }
 
          gNoBidComponentsP''' = groupP gNoBidComponentsSpec'''
          gNoBidComponentsSpec''' = FGSpec
@@ -5150,7 +5150,7 @@ mBidRequest = FMSpec
             , gsSeperator = tListID
             , gsBody = gNoBidComponentsBody''' }
             where
-            gNoBidComponentsBody''' = 
+            gNoBidComponentsBody''' =
                LT.insert (tnum tSide) tSide $
                LT.insert (tnum tTradingSessionID) tTradingSessionID $
                LT.insert (tnum tNetGrossInd) tNetGrossInd $
@@ -5162,7 +5162,7 @@ mBidRequest = FMSpec
             { tName = "NoBidDescriptors"
             , tnum = tnum tNoBidDescriptors
             , tparser = gNoBidDescriptorsP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoBidDescriptorsSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoBidDescriptorsSpec''' }
 
          gNoBidDescriptorsP''' = groupP gNoBidDescriptorsSpec'''
          gNoBidDescriptorsSpec''' = FGSpec
@@ -5170,7 +5170,7 @@ mBidRequest = FMSpec
             , gsSeperator = tBidDescriptorType
             , gsBody = gNoBidDescriptorsBody''' }
             where
-            gNoBidDescriptorsBody''' = 
+            gNoBidDescriptorsBody''' =
                LT.insert (tnum tBidDescriptor) tBidDescriptor $
                LT.insert (tnum tSideValueInd) tSideValueInd $
                LT.insert (tnum tLiquidityValue) tLiquidityValue $
@@ -5192,7 +5192,7 @@ mBidResponse = FMSpec
    , msBody = mBidResponseBody
    , msTrailer = trailerFIX42 }
    where
-   mBidResponseBody = 
+   mBidResponseBody =
       LT.insert (tnum tBidID) tBidID $
       LT.insert (tnum tClientBidID) tClientBidID $
       LT.insert (tnum tNoBidComponents) gNoBidComponents'''       LT.new
@@ -5201,7 +5201,7 @@ mBidResponse = FMSpec
             { tName = "NoBidComponents"
             , tnum = tnum tNoBidComponents
             , tparser = gNoBidComponentsP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoBidComponentsSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoBidComponentsSpec''' }
 
          gNoBidComponentsP''' = groupP gNoBidComponentsSpec'''
          gNoBidComponentsSpec''' = FGSpec
@@ -5209,7 +5209,7 @@ mBidResponse = FMSpec
             , gsSeperator = tCommission
             , gsBody = gNoBidComponentsBody''' }
             where
-            gNoBidComponentsBody''' = 
+            gNoBidComponentsBody''' =
                LT.insert (tnum tCommType) tCommType $
                LT.insert (tnum tListID) tListID $
                LT.insert (tnum tCountry) tCountry $
@@ -5235,7 +5235,7 @@ mListStrikePrice = FMSpec
    , msBody = mListStrikePriceBody
    , msTrailer = trailerFIX42 }
    where
-   mListStrikePriceBody = 
+   mListStrikePriceBody =
       LT.insert (tnum tListID) tListID $
       LT.insert (tnum tTotNoStrikes) tTotNoStrikes $
       LT.insert (tnum tNoStrikes) gNoStrikes'''       LT.new
@@ -5244,7 +5244,7 @@ mListStrikePrice = FMSpec
             { tName = "NoStrikes"
             , tnum = tnum tNoStrikes
             , tparser = gNoStrikesP'''
-            , arbitraryValue = arbibtraryFIXGroup gNoStrikesSpec''' }
+            , arbitraryValue = arbitraryFIXGroup gNoStrikesSpec''' }
 
          gNoStrikesP''' = groupP gNoStrikesSpec'''
          gNoStrikesSpec''' = FGSpec
@@ -5252,7 +5252,7 @@ mListStrikePrice = FMSpec
             , gsSeperator = tSymbol
             , gsBody = gNoStrikesBody''' }
             where
-            gNoStrikesBody''' = 
+            gNoStrikesBody''' =
                LT.insert (tnum tSymbolSfx) tSymbolSfx $
                LT.insert (tnum tSecurityID) tSecurityID $
                LT.insert (tnum tIDSource) tIDSource $
@@ -5287,7 +5287,7 @@ fix42 = FSpec
    { fsVersion = "FIX.4.2"
    , fsHeader = headerFIX42
    , fsTrailer = trailerFIX42
-   , fsMessages = fix42Messages 
+   , fsMessages = fix42Messages
    , fsTags = fix42Tags }
    where
       fix42Messages =
@@ -5336,7 +5336,7 @@ fix42 = FSpec
           LT.insert (msType mBusinessMessageReject) mBusinessMessageReject $
           LT.insert (msType mBidRequest) mBidRequest $
           LT.insert (msType mBidResponse) mBidResponse $
-          LT.insert (msType mListStrikePrice) mListStrikePrice           LT.new 
+          LT.insert (msType mListStrikePrice) mListStrikePrice           LT.new
       fix42Tags =
           LT.insert (tnum tAccount) tAccount $
           LT.insert (tnum tAdvId) tAdvId $
@@ -5738,4 +5738,4 @@ fix42 = FSpec
           LT.insert (tnum tListStatusText) tListStatusText $
           LT.insert (tnum tEncodedListStatusTextLen) tEncodedListStatusTextLen $
           LT.insert (tnum tEncodedListStatusText) tEncodedListStatusText $
-          LT.new 
+          LT.new

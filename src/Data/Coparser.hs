@@ -1,31 +1,27 @@
 -- Module  : Data.Coparser
--- License : LGPL-2.1 
+-- License : LGPL-2.1
 
 {-# LANGUAGE BangPatterns
            , MultiParamTypeClasses
            , FlexibleInstances
            , TypeSynonymInstances #-}
 
-module Data.Coparser 
+module Data.Coparser
     ( Coparser (..)
     , BuilderLike (..)
-    , length
-    , Data.Coparser.foldl'
-    , Data.Coparser.foldl
     ) where
 
-import Prelude hiding ( length ) 
+import Prelude hiding ( length )
 import qualified Prelude as P ( length, foldl )
 import qualified Data.Foldable as P ( foldl' )
 import qualified Data.List as L ( concat )
 import Data.ByteString ( ByteString )
 import qualified Data.ByteString as B ( concat, append, length, foldl, foldl' )
-import Data.Word ( Word8 )
-import qualified Data.ByteString.Char8 as C 
+import qualified Data.ByteString.Char8 as C
     ( cons, snoc, pack, unpack, singleton )
 import Data.Text.Lazy.Builder ( Builder )
 import qualified Data.Text.Lazy as Builder ( unpack )
-import qualified Data.Text.Lazy.Builder as Builder 
+import qualified Data.Text.Lazy.Builder as Builder
     ( fromString, singleton, toLazyText )
 import Data.Monoid ( mappend, mconcat )
 import qualified Data.DList as DL
@@ -88,7 +84,7 @@ instance BuilderLike (DL.DList Char) where
     cons = DL.cons
     snoc = DL.snoc
     concat = DL.concat
-    
+
 instance BuilderLike Builder where
     pack = Builder.fromString
     unpack = Builder.unpack . Builder.toLazyText

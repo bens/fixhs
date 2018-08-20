@@ -1,14 +1,10 @@
 -- mODULE  : Data.FIX.Message
--- License : LGPL-2.1 
-
-{-# LANGUAGE 
-    MagicHash
-  , GeneralizedNewtypeDeriving #-}
+-- License : LGPL-2.1
 
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 
 -- | FIX messages
-module Data.FIX.Message 
+module Data.FIX.Message
     ( FIXValue (..)
     , FIXValues
     , FIXTag (..)
@@ -23,85 +19,99 @@ module Data.FIX.Message
     , delimiter
     ) where
 
-import System.Time ( CalendarTime (..) )
+import Data.Time.Calendar ( Day )
+import Data.Time.Clock ( UTCTime (..), DiffTime )
 import Prelude hiding ( null )
 import Data.ByteString ( ByteString )
-import qualified Data.ByteString as B ( null, foldl' )
-import Data.IntMap ( IntMap, elems )
+import Data.IntMap ( IntMap )
 import Data.Map ( Map )
-import Data.Attoparsec ( Parser ) 
-import Data.LookupTable ( LookupTable )
-import qualified Data.LookupTable as LT ( toList )
+import Data.Attoparsec.ByteString ( Parser )
 import Test.QuickCheck ( Gen )
 import Data.FIX.Common ( delimiter )
 import Data.Coparser ( BuilderLike (..), foldl' )
+import Control.DeepSeq
 
 -- | A valid FIX field description. It is used to specify FIX messages using
 -- 'FIXMessageSpec'.
-data FIXTag = FIXTag 
-    { tName :: String 
+data FIXTag = FIXTag
+    { tName :: String
     -- ^ The name of the tag e.g. BeginString.
-    , tnum :: Int 
+    , tnum :: Int
     -- ^ The numerical value of the tag e.g. 8.
-    , tparser :: Parser FIXValue 
+    , tparser :: Parser FIXValue
     -- ^ The corresponding attoparsec parser.
-    , arbitraryValue :: Gen FIXValue 
+    , arbitraryValue :: Gen FIXValue
     -- ^ A random generator for that particular types of fields.
-    } 
+    }
 
 
--- | 
+-- |
 data FIXGroupElement = FIXGroupElement Int FIXValue FIXValues
+instance NFData FIXGroupElement where
+    rnf (FIXGroupElement _ s vs) = rnf s `seq` rnf vs
 
-data FIXValue = FIXInt Int 
+data FIXValue = FIXInt Int
               | FIXDouble Double
-              | FIXChar Char 
-              | FIXBool Bool 
-              | FIXString ByteString 
-              | FIXData ByteString 
-              | FIXMultipleValueString ByteString 
-              | FIXTimestamp CalendarTime
-              | FIXTimeOnly CalendarTime
-              | FIXDateOnly CalendarTime
-              | FIXMonthYear CalendarTime
+              | FIXChar Char
+              | FIXBool Bool
+              | FIXString ByteString
+              | FIXData ByteString
+              | FIXMultipleValueString ByteString
+              | FIXTimestamp UTCTime
+              | FIXTimeOnly DiffTime
+              | FIXDateOnly Day
+              | FIXMonthYear Day
               | FIXGroup Int [FIXGroupElement]
+instance NFData FIXValue where
+    rnf (FIXInt x) = rnf x
+    rnf (FIXDouble x) = rnf x
+    rnf (FIXChar x) = rnf x
+    rnf (FIXBool x) = rnf x
+    rnf (FIXString x) = rnf x
+    rnf (FIXMultipleValueString x) = rnf x
+    rnf (FIXTimestamp x) = rnf x
+    rnf (FIXTimeOnly x) = rnf x
+    rnf (FIXDateOnly x) = rnf x
+    rnf (FIXMonthYear x) = rnf x
+    rnf (FIXData x) = rnf x
+    rnf (FIXGroup l es) = rnf l `seq` rnf es
 
-type FIXValues = IntMap FIXValue 
+type FIXValues = IntMap FIXValue
 data FIXMessage a = FIXMessage
                   { mContext :: a
                   , mType    :: ByteString
                   , mHeader  :: FIXValues
                   , mBody    :: FIXValues
                   , mTrailer :: FIXValues }
-
+instance NFData (FIXMessage a) where
+    rnf (FIXMessage _ _ h b t) = rnf h `seq` rnf b `seq` rnf t
 
 type FIXTags = IntMap FIXTag
-data FIXMessageSpec = FMSpec 
+data FIXMessageSpec = FMSpec
                       { msName    :: String
                       , msType    :: ByteString
                       , msHeader  :: FIXTags
-                      , msBody    :: FIXTags 
+                      , msBody    :: FIXTags
                       , msTrailer :: FIXTags }
 
 type FIXMessages = Map ByteString FIXMessageSpec
-data FIXSpec = FSpec 
+data FIXSpec = FSpec
                { fsVersion  :: String       -- ^ FIX version
-               , fsHeader   :: FIXTags      -- ^ FIX header tags 
+               , fsHeader   :: FIXTags      -- ^ FIX header tags
                , fsTrailer  :: FIXTags      -- ^ FIX trailer tags
                , fsMessages :: FIXMessages  -- ^ Dictionary of all FIX messages
                , fsTags     :: FIXTags      -- ^ Dictionary of all FIX tags
-               }    
+               }
 
 data FIXGroupSpec = FGSpec
                     { gsLength    :: FIXTag
-                    , gsSeperator :: FIXTag 
+                    , gsSeperator :: FIXTag
                     , gsBody      :: FIXTags }
 
 
 -- FIX checksum is simply the sum of bytes modulo 256
 checksum :: BuilderLike t => t -> Int
 checksum b = foldl' _sumUp 0 b `mod` 256
-                where 
+                where
                     _sumUp :: Int -> Char -> Int
                     _sumUp t c = t + fromEnum c
-
