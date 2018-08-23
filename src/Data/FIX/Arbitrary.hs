@@ -1,113 +1,122 @@
 -- Module  : Data.FIX.Arbitrary
 -- License : LGPL-2.1
 
+{-# LANGUAGE NumDecimals   #-}
+{-# LANGUAGE TupleSections #-}
+
 module Data.FIX.Arbitrary
-    ( arbitraryFIXValues
-    , arbitraryFIXGroup
-    , arbitraryFIXMessage
-    , arbitraryByteString
-    , arbitraryUTCTime
-    , arbitraryDay
-    , arbitraryDiffTime
-    , arbitraryMonthYear
+    ( genFIXValues
+    , shrinkFIXValues
+    , genFIXGroup
+    , genFIXMessage
+    , genFIXMessage'
+    , shrinkFIXMessage
+    , genByteString
+    , genUTCTime
+    , genDay
+    , genDiffTime
+    , genMonthYear
     )
     where
 
-import Data.FIX.Message (
-    FIXGroupElement(..), FIXTag(..), FIXValue(..), FIXValues, FIXTags
-      , FIXMessage(..), FIXSpec, FIXMessageSpec(..), FIXGroupSpec(..) )
-import Data.Time.Calendar ( Day, fromGregorian )
-import Data.Time.Clock ( DiffTime, UTCTime (..), picosecondsToDiffTime )
-import Data.ByteString ( ByteString )
-import qualified Data.ByteString.Char8 as C ( pack )
-import qualified Data.Char as C ( isAscii, isAlphaNum )
-import qualified Data.LookupTable as LT ( toList, fromList )
-import Data.Functor ( (<$>) )
-import Control.Monad ( replicateM )
-import Test.QuickCheck ( Gen, arbitrary )
+import Data.ByteString (ByteString)
+import Data.Char (isAlphaNum, isAscii)
+import Data.Functor ((<$>))
+import Data.IntMap (IntMap)
+import Data.Time.Calendar (Day, addDays, fromGregorian, isLeapYear)
+import Data.Time.Clock (DiffTime, UTCTime (..), picosecondsToDiffTime)
+import Test.QuickCheck (Gen, arbitrary, shrinkList, suchThat)
 
-arbitraryFIXValues :: FIXTags -> Gen FIXValues
-arbitraryFIXValues tags =
-    let tlist :: [FIXTag]
-        tlist = map snd $ LT.toList tags
-        arb :: FIXTag -> Gen (Int, FIXValue)
-        arb tag = (,) (tnum tag) <$> arbitraryValue tag
-    in
-        LT.fromList <$> mapM arb tlist
+import qualified Data.ByteString.Char8 as C
+import qualified Data.IntMap as IntMap
+import qualified Data.Map as Map
+import qualified Test.QuickCheck as QC
 
-arbitraryFIXGroup :: FIXGroupSpec -> Gen FIXValue
-arbitraryFIXGroup spec =
-    let ltag = gsLength spec in do
-       t <- arbitraryValue ltag
-       case t of
-        FIXInt l' -> let l = l' `mod` 4 in
-           do bodies <- replicateM l arbitraryGBody
-              return $ FIXGroup l bodies
-        _         -> error $ "do not know " ++ show (tnum ltag)
+import Data.FIX.Message
+
+shrinkIntMap :: IntMap a -> [IntMap a]
+shrinkIntMap = map IntMap.fromList . shrinkList (const []) . IntMap.toList
+
+genFIXValues :: IntMap FIXTag -> Gen (IntMap FIXValue)
+genFIXValues = fmap IntMap.fromList . traverse f . IntMap.elems
     where
-        arbitraryGBody =
-           let stag = gsSeperator spec
-               btags = gsBody spec
-           in do
-               s  <- arbitraryValue stag
-               vs <- arbitraryFIXValues btags
-               return (FIXGroupElement (tnum stag) s vs)
+        f tag = (tnum tag,) <$> genValue tag
 
-arbitraryFIXMessage :: FIXSpec -> FIXMessageSpec -> Gen (FIXMessage FIXSpec)
-arbitraryFIXMessage context spec = do
-    header <- arbitraryFIXValues $ msHeader spec
-    body <- arbitraryFIXValues $ msBody spec
-    trailer <- arbitraryFIXValues $ msTrailer spec
+shrinkFIXValues :: IntMap FIXValue -> [IntMap FIXValue]
+shrinkFIXValues = shrinkIntMap
+
+genFIXGroup :: FIXGroupSpec -> Gen FIXValue
+genFIXGroup spec = do
+    let tagLength = gsLength spec
+        tagSep    = gsSeparator spec
+        tagBody   = gsBody spec
+    let genGroupBody = FIXGroupElement (tnum tagSep)
+            <$> genValue tagSep
+            <*> genFIXValues tagBody
+    t <- genValue tagLength
+    case t of
+        FIXInt len' -> do
+            let len = len' `mod` 4
+            FIXGroup len <$> QC.vectorOf len genGroupBody
+        _ -> error $ "do not know " ++ show (tnum tagLength)
+
+genFIXMessage :: FIXSpec -> Gen FIXMessage
+genFIXMessage spec = do
+    msgSpec <- QC.elements (Map.elems (fsMessages spec))
+    genFIXMessage' spec msgSpec
+
+genFIXMessage' :: FIXSpec -> FIXMessageSpec -> Gen FIXMessage
+genFIXMessage' spec msgSpec = do
+    header  <- genFIXValues $ msHeader msgSpec
+    body    <- genFIXValues $ msBody msgSpec
+    trailer <- genFIXValues $ msTrailer msgSpec
     return FIXMessage
-        { mContext = context
-        , mType = msType spec
-        , mHeader = header
-        , mBody = body
+        { mContext = spec
+        , mType    = msType msgSpec
+        , mHeader  = header
+        , mBody    = body
         , mTrailer = trailer }
 
--- An arbitrary instance of ByteString.
---- we generate a random string out of digits and numbers
---- generated string has length at least 1 and most <max>
-arbitraryByteString :: Gen ByteString
-arbitraryByteString = do
-    l' <- arbitrary :: Gen Int
-    let l = 1 + l' `mod` maxLen
-    C.pack <$> replicateM l (aChar isAlpha')
-    where
-        aChar :: (Char -> Bool) -- predicate
-                -> Gen Char     -- random generator
-        aChar p = do
-            c <- arbitrary
-            if p c then return c else aChar p
+shrinkFIXMessage :: FIXMessage -> [FIXMessage]
+shrinkFIXMessage msg = FIXMessage (mContext msg) (mType msg)
+    <$> shrinkIntMap (mHeader  msg)
+    <*> shrinkIntMap (mBody    msg)
+    <*> shrinkIntMap (mTrailer msg)
 
-        isAlpha' c = C.isAlphaNum c && C.isAscii c
+--- We generate a random string out of digits and numbers generated string has
+--- length at least 1 and most <max>
+genByteString :: Gen ByteString
+genByteString = do
+    l <- QC.choose (1, maxLen)
+    C.pack <$> QC.vectorOf l (arbitrary `suchThat` isGoodChar)
+    where
+        isGoodChar c = isAlphaNum c && isAscii c
         maxLen = 15
 
-arbitraryUTCTime :: Gen UTCTime
-arbitraryUTCTime = UTCTime <$> arbitraryDay <*> arbitraryDiffTime
+genUTCTime :: Gen UTCTime
+genUTCTime = UTCTime <$> genDay <*> genDiffTime
 
-arbitraryDay :: Gen Day
-arbitraryDay = do
-    year  <- (`mod` 10000) <$> arbitrary
-    month <- (`mod` 12) <$> arbitrary
-    day   <- (`mod` 28) <$> arbitrary
-    return $ fromGregorian year month day
+genDay :: Gen Day
+genDay = do
+    year  <- QC.choose (0, 9999)
+    let date = fromGregorian year 1 1
+    doy <- QC.choose (0, if isLeapYear year then 365 else 364)
+    return $ addDays doy date
 
-arbitraryMonthYear :: Gen Day
-arbitraryMonthYear = do
-    year  <- (`mod` 10000) <$> arbitrary
-    month <- (`mod` 12) <$> arbitrary
+genMonthYear :: Gen Day
+genMonthYear = do
+    year  <- QC.choose (0, 9999)
+    month <- QC.choose (1, 12)
     return $ fromGregorian year month 1
 
-arbitraryDiffTime :: Gen DiffTime
-arbitraryDiffTime = do
-    hour   <- (`mod` 24) <$> arbitrary
-    minute <- (`mod` 60) <$> arbitrary
-    sec    <- (`mod` 60) <$> arbitrary
-    psec   <- (`mod` 1000000000000) <$> arbitrary
+genDiffTime :: Gen DiffTime
+genDiffTime = do
+    hour   <- QC.choose (0, 23)
+    minute <- QC.choose (0, 59)
+    sec    <- QC.choose (0, 59)
+    msec   <- QC.choose (0, 999)
     return $ picosecondsToDiffTime
-          $ (+ psec)
-          $ (* 1000000)            -- picosecs
-          $ (* 1000) $ (+ sec)     -- msecs
-          $ (* 60)   $ (+ minute)
-          $ (* 60)   $ hour
+          $ (* 1e9) $ (+ msec)    -- picosecs
+          $ (* 1e3) $ (+ sec)     -- msecs
+          $ (* 60)  $ (+ minute)
+          $ (* 60)  $ hour

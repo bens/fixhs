@@ -9,9 +9,13 @@ license-file:        LICENSE
 author:              Arvin Moezzi
 maintainer:          Arvin Moezzi
 build-type:          Simple
-tested-with:         GHC == 7.0.3
+tested-with:         GHC == 7.0.3, GHC == 8.4.3
 cabal-version:       >=1.8
 stability:           experimental
+
+source-repository head
+  type:     git
+  location: http://github.com/urv/fixhs
 
 flag developer
   description: build in development mode
@@ -40,18 +44,19 @@ flag with-fix44
 library
   hs-source-dirs:    src/
   build-depends:
-                     MissingH    >= 1.4.0.1,
-                     QuickCheck  >= 2.11.3,
-                     attoparsec  >= 0.13.2.2,
-                     base        >= 3 && < 5,
-                     bytestring  >= 0.10.8.2,
-                     containers  >= 0.5.11.0,
-                     deepseq     >= 1.4.3.0,
-                     dlist       >= 0.8.0.4,
-                     text        >= 1.2.3.0,
-                     time        >= 1.8.0.2
+                     MissingH     >= 1.4.0.1,
+                     QuickCheck   >= 2.11.3,
+                     attoparsec   >= 0.13.2.2,
+                     base         >= 3 && < 5,
+                     bytestring   >= 0.10.8.2,
+                     containers   >= 0.5.11.0,
+                     deepseq      >= 1.4.3.0,
+                     dlist        >= 0.8.0.4,
+                     text         >= 1.2.3.0,
+                     time         >= 1.8.0.2,
+                     transformers >= 0.5.5.0
+
   other-modules:
-                     Data.FIX.ParserCombinators
   exposed-modules:
                      Data.LookupTable
                      Data.Coparser
@@ -59,36 +64,73 @@ library
                      Data.FIX.Common
                      Data.FIX.Coparser
                      Data.FIX.Parser
+                     Data.FIX.ParserCombinators
                      Data.FIX.Message
   ghc-options:       -Wall
   if flag(developer)
     ghc-prof-options: -auto-all
 
   if flag(with-fix40)
-   exposed-modules: Data.FIX.Spec.FIX40
+    exposed-modules: Data.FIX.Spec.FIX40
   if flag(with-fix41)
-   exposed-modules: Data.FIX.Spec.FIX41
+    exposed-modules: Data.FIX.Spec.FIX41
   if flag(with-fix42)
-   exposed-modules: Data.FIX.Spec.FIX42
+    exposed-modules: Data.FIX.Spec.FIX42
   if flag(with-fix43)
-   exposed-modules: Data.FIX.Spec.FIX43
+    exposed-modules: Data.FIX.Spec.FIX43
   if flag(with-fix44)
-   exposed-modules: Data.FIX.Spec.FIX44
+    exposed-modules: Data.FIX.Spec.FIX44
 
-source-repository head
-  type:     git
-  location: http://github.com/urv/fixhs
-
+test-suite test
+  type:              exitcode-stdio-1.0
+  main-is:           Main.hs
+  hs-source-dirs:    test
+  default-language:  Haskell2010
+  other-modules:
+                     Data.FIX.Coparser.Test
+                     Data.FIX.Parser.Test
+                     Data.FIX.ParserCombinators.Test
+                     Data.FIX.Roundtrip.Test
+                     Data.FIX.Test.Common
+  build-depends:
+                     fixhs,
+                     -- test deps
+                     hedgehog,
+                     tasty,
+                     tasty-hedgehog,
+                     tasty-hunit,
+                     tasty-quickcheck,
+                     -- library deps
+                     MissingH,
+                     QuickCheck,
+                     attoparsec,
+                     base,
+                     bytestring,
+                     containers,
+                     deepseq,
+                     dlist,
+                     text,
+                     time,
+                     transformers
 
 benchmark bench
-  type:       exitcode-stdio-1.0
-  main-is:    testsuite/benchmarks/Benchmark.hs
-  build-depends: fixhs,
-                 QuickCheck,
-                 attoparsec,
-                 base,
-                 bytestring,
-                 deepseq,
-                 dlist,
-                 gauge,
-                 time
+  type:              exitcode-stdio-1.0
+  main-is:           Benchmark.hs
+  hs-source-dirs:    benchmarks/
+  default-language:  Haskell2010
+  build-depends:
+                     fixhs,
+                     -- benchmark deps
+                     gauge        >= 0.2.3,
+                     -- library deps
+                     MissingH,
+                     QuickCheck,
+                     attoparsec,
+                     base,
+                     bytestring,
+                     containers,
+                     deepseq,
+                     dlist,
+                     text,
+                     time,
+                     transformers

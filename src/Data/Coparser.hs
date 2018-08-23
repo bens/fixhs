@@ -1,35 +1,35 @@
 -- Module  : Data.Coparser
 -- License : LGPL-2.1
 
-{-# LANGUAGE BangPatterns
-           , MultiParamTypeClasses
-           , FlexibleInstances
-           , TypeSynonymInstances #-}
+{-# LANGUAGE BangPatterns          #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeSynonymInstances  #-}
 
 module Data.Coparser
     ( Coparser (..)
     , BuilderLike (..)
     ) where
 
-import Prelude hiding ( length )
-import qualified Prelude as P ( length, foldl )
-import qualified Data.Foldable as P ( foldl' )
-import qualified Data.List as L ( concat )
-import Data.ByteString ( ByteString )
-import qualified Data.ByteString as B ( concat, append, length, foldl, foldl' )
-import qualified Data.ByteString.Char8 as C
-    ( cons, snoc, pack, unpack, singleton )
-import Data.Text.Lazy.Builder ( Builder )
-import qualified Data.Text.Lazy as Builder ( unpack )
-import qualified Data.Text.Lazy.Builder as Builder
-    ( fromString, singleton, toLazyText )
-import Data.Monoid ( mappend, mconcat )
-import qualified Data.DList as DL
-import Data.Bits.Utils ( w82c )
-import GHC.Float ( showFloat )
+import Data.Bits.Utils (w82c)
+import Data.ByteString (ByteString)
+import Data.Monoid (mappend, mconcat)
+import GHC.Float (showFloat)
+import Data.String (IsString(..))
 
-class BuilderLike cs where
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString.Lazy.Char8 as BL
+import qualified Data.ByteString.Builder as BB
+import qualified Data.DList as DL
+import qualified Data.Foldable as P
+import qualified Data.List as L
+import qualified Data.Text.Lazy as LazyText
+import qualified Data.Text.Lazy.Builder as LazyTextB
+
+class (Monoid cs, IsString cs) => BuilderLike cs where
     pack :: String -> cs
+    pack = fromString
     unpack :: cs -> String
     singleton :: Char -> cs
     append :: cs -> cs -> cs
@@ -54,7 +54,6 @@ class BuilderLike cs where
     foldl f x0 = P.foldl f x0 . unpack
 
 instance BuilderLike String where
-    pack = id
     unpack = id
     singleton c = [c]
     append = (++)
@@ -65,7 +64,6 @@ instance BuilderLike String where
     foldl = P.foldl
 
 instance BuilderLike ByteString where
-    pack = C.pack
     unpack = C.unpack
     singleton = C.singleton
     append = B.append
@@ -77,7 +75,6 @@ instance BuilderLike ByteString where
     foldl f = let  f' x =  f x . w82c in B.foldl f'
 
 instance BuilderLike (DL.DList Char) where
-    pack = DL.fromList
     unpack = DL.toList
     singleton = DL.singleton
     append = DL.append
@@ -85,10 +82,17 @@ instance BuilderLike (DL.DList Char) where
     snoc = DL.snoc
     concat = DL.concat
 
-instance BuilderLike Builder where
-    pack = Builder.fromString
-    unpack = Builder.unpack . Builder.toLazyText
-    singleton = Builder.singleton
+instance BuilderLike BB.Builder where
+    pack = BB.stringUtf8
+    unpack = BL.unpack . BB.toLazyByteString
+    singleton = BB.byteString . C.singleton
+    append = mappend
+    concat = mconcat
+    cons c b = BB.charUtf8 c <> b
+
+instance BuilderLike LazyTextB.Builder where
+    unpack = LazyText.unpack . LazyTextB.toLazyText
+    singleton = LazyTextB.singleton
     append = mappend
     concat = mconcat
 

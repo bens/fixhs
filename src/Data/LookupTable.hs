@@ -1,19 +1,19 @@
 -- Module  : Data.LookupTable
--- License : LGPL-2.1 
+-- License : LGPL-2.1
 
-{-# LANGUAGE TypeFamilies
-           , FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TypeFamilies      #-}
 
-module Data.LookupTable ( LookupTable(..) ) 
-    where
+module Data.LookupTable
+    ( LookupTable(..)
+    ) where
 
-import Prelude hiding ( lookup )
+import Data.IntMap (IntMap)
+import Data.Map (Map)
 
-import Data.Map ( Map )
-import qualified Data.Map as Map
-import qualified Data.List as List
-import Data.IntMap ( IntMap )
 import qualified Data.IntMap as IntMap
+import qualified Data.List as List
+import qualified Data.Map as Map
 
 class LookupTable t where
     type KeyOf   t :: *
@@ -24,7 +24,7 @@ class LookupTable t where
     toList   :: t -> [(KeyOf t, ValueOf t)]
     fromList :: [(KeyOf t, ValueOf t)] -> t
 
-instance Ord k => LookupTable (Map k v) where 
+instance Ord k => LookupTable (Map k v) where
     type KeyOf   (Map k v) = k
     type ValueOf (Map k v) = v
     new      = Map.empty
@@ -37,7 +37,7 @@ instance Ord k => LookupTable [(k,v)] where
     type KeyOf   [(k,v)] = k
     type ValueOf [(k,v)] = v
     new      = []
-    lookup   = List.lookup  
+    lookup   = List.lookup
     insert   = curry (:)
     toList   = id
     fromList = id

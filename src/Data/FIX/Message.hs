@@ -6,30 +6,28 @@
 -- | FIX messages
 module Data.FIX.Message
     ( FIXValue (..)
-    , FIXValues
     , FIXTag (..)
-    , FIXTags
-    , FIXMessages
     , FIXMessage (..)
-    , FIXMessageSpec (..)
     , FIXGroupSpec (..)
     , FIXGroupElement (..)
     , FIXSpec (..)
+    , FIXMessageSpec (..)
+    , FIXMessageSpecs
     , checksum
     , delimiter
     ) where
 
-import Data.Time.Calendar ( Day )
-import Data.Time.Clock ( UTCTime (..), DiffTime )
-import Prelude hiding ( null )
-import Data.ByteString ( ByteString )
-import Data.IntMap ( IntMap )
-import Data.Map ( Map )
+import Control.DeepSeq (NFData(rnf))
 import Data.Attoparsec.ByteString ( Parser )
-import Test.QuickCheck ( Gen )
-import Data.FIX.Common ( delimiter )
-import Data.Coparser ( BuilderLike (..), foldl' )
-import Control.DeepSeq
+import Data.ByteString (ByteString)
+import Data.Char (ord)
+import Data.Coparser (BuilderLike (..), foldl')
+import Data.FIX.Common (delimiter)
+import Data.IntMap (IntMap)
+import Data.Map (Map)
+import Data.Time.Calendar (Day)
+import Data.Time.Clock (UTCTime (..), DiffTime)
+import Test.QuickCheck (Gen)
 
 -- | A valid FIX field description. It is used to specify FIX messages using
 -- 'FIXMessageSpec'.
@@ -40,28 +38,35 @@ data FIXTag = FIXTag
     -- ^ The numerical value of the tag e.g. 8.
     , tparser :: Parser FIXValue
     -- ^ The corresponding attoparsec parser.
-    , arbitraryValue :: Gen FIXValue
+    , genValue :: Gen FIXValue
     -- ^ A random generator for that particular types of fields.
     }
+instance Eq FIXTag where
+    x == y = tnum  x == tnum  y
 
+instance Show FIXTag where
+    show tag = "FIXTag " ++ show (tnum tag)
 
--- |
-data FIXGroupElement = FIXGroupElement Int FIXValue FIXValues
+data FIXGroupElement = FIXGroupElement Int FIXValue (IntMap FIXValue)
+    deriving (Eq, Show)
 instance NFData FIXGroupElement where
-    rnf (FIXGroupElement _ s vs) = rnf s `seq` rnf vs
+    rnf (FIXGroupElement n s vs) = rnf n `seq` rnf s `seq` rnf vs
 
-data FIXValue = FIXInt Int
-              | FIXDouble Double
-              | FIXChar Char
-              | FIXBool Bool
-              | FIXString ByteString
-              | FIXData ByteString
-              | FIXMultipleValueString ByteString
-              | FIXTimestamp UTCTime
-              | FIXTimeOnly DiffTime
-              | FIXDateOnly Day
-              | FIXMonthYear Day
-              | FIXGroup Int [FIXGroupElement]
+data FIXValue
+    = FIXInt Int
+    | FIXDouble Double
+    | FIXChar Char
+    | FIXBool Bool
+    | FIXString ByteString
+    | FIXData ByteString
+      -- FIXME: seems better to contain a list of bytestrings
+    | FIXMultipleValueString ByteString
+    | FIXTimestamp UTCTime
+    | FIXTimeOnly DiffTime
+    | FIXDateOnly Day
+    | FIXMonthYear Day  -- FIXME: should this be a pair of (Integer, Int)?
+    | FIXGroup Int [FIXGroupElement]
+    deriving (Eq, Show)
 instance NFData FIXValue where
     rnf (FIXInt x) = rnf x
     rnf (FIXDouble x) = rnf x
@@ -76,42 +81,59 @@ instance NFData FIXValue where
     rnf (FIXData x) = rnf x
     rnf (FIXGroup l es) = rnf l `seq` rnf es
 
-type FIXValues = IntMap FIXValue
-data FIXMessage a = FIXMessage
-                  { mContext :: a
-                  , mType    :: ByteString
-                  , mHeader  :: FIXValues
-                  , mBody    :: FIXValues
-                  , mTrailer :: FIXValues }
-instance NFData (FIXMessage a) where
+data FIXMessage = FIXMessage
+    { mContext :: FIXSpec
+    , mType    :: ByteString
+    , mHeader  :: IntMap FIXValue
+    , mBody    :: IntMap FIXValue
+    , mTrailer :: IntMap FIXValue
+    }
+instance Eq FIXMessage where
+  x == y = and
+    [ mType x    == mType y
+    , mHeader x  == mHeader y
+    , mBody x    == mBody y
+    , mTrailer x == mTrailer y
+    ]
+instance Show FIXMessage where
+    showsPrec d (FIXMessage spec ty hd bd tr) =
+        showParen (d > app_prec) $
+            showString "FIXMessage "
+            . showString (fsVersion spec) . showString " "
+            . showsPrec (app_prec+1) ty . showString " "
+            . showsPrec (app_prec+1) hd . showString " "
+            . showsPrec (app_prec+1) bd . showString " "
+            . showsPrec (app_prec+1) tr
+      where app_prec = 10
+
+instance NFData FIXMessage where
     rnf (FIXMessage _ _ h b t) = rnf h `seq` rnf b `seq` rnf t
 
-type FIXTags = IntMap FIXTag
 data FIXMessageSpec = FMSpec
-                      { msName    :: String
-                      , msType    :: ByteString
-                      , msHeader  :: FIXTags
-                      , msBody    :: FIXTags
-                      , msTrailer :: FIXTags }
+    { msName    :: String
+    , msType    :: ByteString
+    , msHeader  :: IntMap FIXTag
+    , msBody    :: IntMap FIXTag
+    , msTrailer :: IntMap FIXTag
+    } deriving (Eq, Show)
 
-type FIXMessages = Map ByteString FIXMessageSpec
+type FIXMessageSpecs
+    = Map ByteString FIXMessageSpec
+
 data FIXSpec = FSpec
-               { fsVersion  :: String       -- ^ FIX version
-               , fsHeader   :: FIXTags      -- ^ FIX header tags
-               , fsTrailer  :: FIXTags      -- ^ FIX trailer tags
-               , fsMessages :: FIXMessages  -- ^ Dictionary of all FIX messages
-               , fsTags     :: FIXTags      -- ^ Dictionary of all FIX tags
-               }
+    { fsVersion  :: String          -- ^ FIX version
+    , fsHeader   :: IntMap FIXTag   -- ^ FIX header tags
+    , fsTrailer  :: IntMap FIXTag   -- ^ FIX trailer tags
+    , fsMessages :: FIXMessageSpecs -- ^ Dictionary of all FIX messages
+    , fsTags     :: IntMap FIXTag   -- ^ Dictionary of all FIX tags
+    } deriving (Eq, Show)
 
 data FIXGroupSpec = FGSpec
-                    { gsLength    :: FIXTag
-                    , gsSeperator :: FIXTag
-                    , gsBody      :: FIXTags }
-
+    { gsLength    :: FIXTag
+    , gsSeparator :: FIXTag
+    , gsBody      :: IntMap FIXTag
+    }
 
 -- FIX checksum is simply the sum of bytes modulo 256
-checksum :: BuilderLike t => t -> Int
-checksum b = foldl' _sumUp 0 b `mod` 256
-                where
-                    _sumUp :: Int -> Char -> Int
-                    _sumUp t c = t + fromEnum c
+checksum :: BuilderLike t => t -> (t, Int)
+checksum b = (b, foldl' (\t c -> t + ord c) 0 b `mod` 256)
