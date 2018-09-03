@@ -6,7 +6,8 @@ import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.QuickCheck (testProperty)
 import Text.Printf (printf)
 
-import qualified Data.Attoparsec.ByteString.Char8 as Atto
+import Text.Megaparsec (runParser)
+
 import qualified Data.ByteString.Char8 as C
 import qualified Data.Map as Map
 import qualified Test.QuickCheck as QC
@@ -28,7 +29,7 @@ prop_FIXValue :: QC.Property
 prop_FIXValue =
   QC.forAllShrink (Arb.genFIXValues (fsTags FIX42.fix42)) Arb.shrinkFIXValues $ \vs ->
     let bs = Co.coparse vs
-        parsed = Atto.parseOnly (tagsP (fsTags FIX42.fix42)) bs
+        parsed = runParser (tagsP (fsTags FIX42.fix42)) "" bs
     in case parsed of
          Right (vs', _) -> vs == vs'
          Left _err -> False
@@ -43,7 +44,7 @@ prop_FIXMessage =
     f msgSpec =
       QC.forAllShrink (Arb.genFIXMessage' FIX42.fix42 msgSpec) Arb.shrinkFIXMessage $ \msg ->
         let bs = Co.coparse msg
-            parsed = Atto.parseOnly (messageP FIX42.fix42) bs
+            parsed = runParser (messageP FIX42.fix42) "" bs
         in QC.counterexample (show bs) $
            case parsed of
              Right msg' ->

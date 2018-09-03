@@ -1,6 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-import Data.Attoparsec.ByteString hiding (take, parse)
 import Data.Coparser (unpack)
 import Data.FIX.Arbitrary
 import Data.FIX.Coparser
@@ -14,6 +13,9 @@ import qualified Data.ByteString.Char8 as BSC
 import qualified Data.LookupTable as LT
 import qualified Gauge.Main as Gauge
 import qualified Gauge.Main.Options as Gauge
+import qualified Text.Megaparsec as Mega
+
+import Data.FIX.Common (Parser)
 
 myConfig :: Gauge.Config
 myConfig = Gauge.defaultConfig
@@ -43,7 +45,7 @@ benchmark spec ss =
 
     where
         parse :: Parser FIXMessage -> BSC.ByteString -> FIXMessage
-        parse p b = either error id (parseOnly p b)
+        parse p b = either (error . show) id (Mega.runParser p "" b)
         ziczac :: [a] -> [a] -> [a]
         ziczac l r = foldMap f (zip l r) where f (l', r') = [l', r']
 

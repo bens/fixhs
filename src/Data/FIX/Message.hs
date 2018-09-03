@@ -18,16 +18,16 @@ module Data.FIX.Message
     ) where
 
 import Control.DeepSeq (NFData(rnf))
-import Data.Attoparsec.ByteString ( Parser )
 import Data.ByteString (ByteString)
 import Data.Char (ord)
-import Data.Coparser (BuilderLike (..), foldl')
-import Data.FIX.Common (delimiter)
 import Data.IntMap (IntMap)
 import Data.Map (Map)
 import Data.Time.Calendar (Day)
 import Data.Time.Clock (UTCTime (..), DiffTime)
 import Test.QuickCheck (Gen)
+
+import Data.Coparser (BuilderLike (..), foldl')
+import Data.FIX.Common (Parser, delimiter)
 
 -- | A valid FIX field description. It is used to specify FIX messages using
 -- 'FIXMessageSpec'.

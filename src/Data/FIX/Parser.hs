@@ -42,30 +42,30 @@ module Data.FIX.Parser
     ) where
 
 import Control.Applicative ((<$>), many)
-import Control.Monad (when)
+import Control.Monad (replicateM, when)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State
-import Data.Attoparsec.ByteString.Char8 ((<?>))
 import Data.ByteString (ByteString)
-import Data.Char (ord)
 import Data.IntMap (IntMap)
 import Test.QuickCheck (arbitrary)
 import Text.Printf (printf)
+import Text.Megaparsec ((<?>), runParser, takeP, try)
 
-import qualified Data.Attoparsec.ByteString.Char8 as Atto
 import qualified Data.ByteString.Char8 as C
-import qualified Data.FIX.Common as FIX
 import qualified Data.FIX.Message as FIX
 import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
+import qualified Text.Megaparsec.Byte as Mega
 
 import Data.FIX.Arbitrary (genByteString)
+import Data.FIX.Common (Parser)
 import Data.FIX.Message
 
 import qualified Data.FIX.ParserCombinators as FIX
 
+
 -- parse a specific tag and its value
-tagP :: FIXTag -> Atto.Parser FIXValue
+tagP :: FIXTag -> Parser FIXValue
 tagP tag = do
     t <- FIX.toTag <?> "tag #" ++ show (tnum tag)
     -- if the two tags coincide read the value
@@ -74,14 +74,14 @@ tagP tag = do
     tparser tag
 
 -- parse all the specificed tags and their corresponding values
-tagsP :: IntMap FIXTag -> Atto.Parser (IntMap FIXValue, IntMap FIXTag)
+tagsP :: IntMap FIXTag -> Parser (IntMap FIXValue, IntMap FIXTag)
 tagsP = evalStateT $ do
     vals <- many parseTag
     unparsed <- get
     return (mconcat vals, unparsed)
     where
-        parseTag :: StateT (IntMap FIXTag) Atto.Parser (IntMap FIXValue)
-        parseTag = do
+        parseTag :: StateT (IntMap FIXTag) Parser (IntMap FIXValue)
+        parseTag = try $ do
             t <- lift FIX.toTag
             ts <- get
             modify (IntMap.delete t)
@@ -93,14 +93,14 @@ tagsP = evalStateT $ do
                     return (IntMap.singleton t v)
 
 -- parse a value of type FIX group
-groupP :: FIXGroupSpec -> Atto.Parser FIXValue
+groupP :: FIXGroupSpec -> Parser FIXValue
 groupP spec = do
     nTag <- tparser lenTag <?> "group length"
     case nTag of
-        FIXInt n -> FIXGroup n <$> Atto.count n submsg
+        FIXInt n -> FIXGroup n <$> replicateM n submsg
         _ -> fail ("failed to parse group: " ++ show (tnum lenTag))
     where
-        submsg :: Atto.Parser FIXGroupElement
+        submsg :: Parser FIXGroupElement
         submsg = do
             sep <- tagP sepTag             -- The separator of the message
             (vs, _) <- tagsP (gsBody spec) -- The rest of the message
@@ -110,10 +110,10 @@ groupP spec = do
 
 -- | Match the next FIX message (only text) in the stream. The checksum is
 -- validated.
-snarfMessageP :: Atto.Parser ByteString
+snarfMessageP :: Parser ByteString
 snarfMessageP = do
     (hdrChksum, len) <- headerP <?> "header"
-    msg <- Atto.take len <?> "snarfing body"
+    msg <- takeP Nothing len <?> "snarfing body"
     let chksum = (hdrChksum + snd (FIX.checksum msg)) `mod` 256
     -- after snarfing the message body, parse the checksum given
     c <- checksumP <?> "checksum"
@@ -125,36 +125,38 @@ snarfMessageP = do
         -- A header always starts with the version tag (8)
         -- followed by the length tag (9). Note: these 2 tags
         -- are included in the checksum
-        headerP :: Atto.Parser (Int, Int)
+        headerP :: Parser (Int, Int)
         headerP = do
             let p8 = do
-                    (_, c)  <- FIX.checksum <$> Atto.string (C.pack "8=")
+                    (_, c)  <- FIX.checksum <$> Mega.string (C.pack "8=")
                     (_, c') <- FIX.checksum <$> FIX.toString
                     return (c + c')
             let p9 = do
-                    (_, c)  <- FIX.checksum <$> Atto.string (C.pack "9=")
+                    (_, c)  <- FIX.checksum <$> Mega.string (C.pack "9=")
                     (l, c') <- FIX.checksum <$> FIX.toString
                     return (c + c', l)
             c8      <- p8 <?> "8 (BeginString)"
             (c9, l) <- p9 <?> "9 (BodyLength)"
-            let c = (c8 + c9 + (2 * ord FIX.delimiter)) `mod` 256
+            let c = (c8 + c9 + 2) `mod` 256
             return (c, FIX.toInt' l)
-        checksumP :: Atto.Parser Int
-        checksumP = Atto.string (C.pack "10=") >> FIX.toInt
+        checksumP :: Parser Int
+        checksumP = Mega.string (C.pack "10=") >> FIX.toInt
 
-messageP :: FIXSpec -> Atto.Parser FIXMessage
+messageP :: FIXSpec -> Parser FIXMessage
 messageP spec = do
     msg <- snarfMessageP <?> "snarfing message"
-    either fail return $ flip Atto.parseOnly msg $ do
-        FIXString msgType <- tagP tMsgType <?> "message type"
-        case Map.lookup msgType (fsMessages spec) of
-            Nothing ->
-                fail ("unknown message type: " ++ show msgType)
-            Just msgSpec -> do
-                hdr <- fst <$> tagsP (msHeader  msgSpec) <?> "header"
-                bdy <- fst <$> tagsP (msBody    msgSpec) <?> "body"
-                trl <- fst <$> tagsP (msTrailer msgSpec) <?> "trailer"
-                return (FIXMessage spec msgType hdr bdy trl)
+    either (fail . show) return $ runParser psr "" msg
+  where
+    psr = do
+      FIXString msgType <- tagP tMsgType <?> "message type"
+      case Map.lookup msgType (fsMessages spec) of
+          Nothing ->
+              fail ("unknown message type: " ++ show msgType)
+          Just msgSpec -> do
+              hdr <- fst <$> tagsP (msHeader  msgSpec) <?> "header"
+              bdy <- fst <$> tagsP (msBody    msgSpec) <?> "body"
+              trl <- fst <$> tagsP (msTrailer msgSpec) <?> "trailer"
+              return (FIXMessage spec msgType hdr bdy trl)
 
 -- FIX value parsers
 toFIXInt                 = FIXInt                 <$> FIX.toInt

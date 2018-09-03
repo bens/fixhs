@@ -44,17 +44,18 @@ flag with-fix44
 library
   hs-source-dirs:    src/
   build-depends:
-                     MissingH     >= 1.4.0.1,
-                     QuickCheck   >= 2.11.3,
-                     attoparsec   >= 0.13.2.2,
-                     base         >= 3 && < 5,
-                     bytestring   >= 0.10.8.2,
-                     containers   >= 0.5.11.0,
-                     deepseq      >= 1.4.3.0,
-                     dlist        >= 0.8.0.4,
-                     text         >= 1.2.3.0,
-                     time         >= 1.8.0.2,
-                     transformers >= 0.5.5.0
+                     MissingH           >= 1.4.0.1,
+                     QuickCheck         >= 2.11.3,
+                     base               >= 3 && < 5,
+                     bytestring         >= 0.10.8.2,
+                     containers         >= 0.5.11.0,
+                     deepseq            >= 1.4.3.0,
+                     dlist              >= 0.8.0.4,
+                     megaparsec         >= 6.5,
+                     parser-combinators >= 1.0.0,
+                     text               >= 1.2.3.0,
+                     time               >= 1.8.0.2,
+                     transformers       >= 0.5.5.0
 
   other-modules:
   exposed-modules:
@@ -103,7 +104,8 @@ test-suite test
                      -- library deps
                      MissingH,
                      QuickCheck,
-                     attoparsec,
+                     megaparsec,
+                     parser-combinators,
                      base,
                      bytestring,
                      containers,
@@ -125,7 +127,8 @@ benchmark bench
                      -- library deps
                      MissingH,
                      QuickCheck,
-                     attoparsec,
+                     megaparsec,
+                     parser-combinators,
                      base,
                      bytestring,
                      containers,

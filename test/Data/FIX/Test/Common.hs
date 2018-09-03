@@ -2,8 +2,11 @@
 
 module Data.FIX.Test.Common where
 
-import qualified Data.Attoparsec.ByteString.Char8 as Atto
-import qualified Data.ByteString.Char8 as C
+import Data.ByteString (ByteString)
+
+import qualified Text.Megaparsec as Mega
+
+import Data.FIX.Common (Parser)
 
 maxShowLen :: Int
 maxShowLen = 80
@@ -15,8 +18,10 @@ showLong bs
     where
       ss = show bs
 
-runParser :: Atto.Parser a -> C.ByteString -> Either String a
-runParser p = Atto.parseOnly (p <* Atto.endOfInput)
+runParser :: Parser a -> ByteString -> Either String a
+runParser p bs =
+  either (Left . Mega.parseErrorPretty' bs) Right
+  $ Mega.runParser (p <* Mega.eof) "" bs
 
-soh :: C.ByteString -> C.ByteString
+soh :: ByteString -> ByteString
 soh = (<> "\SOH")
