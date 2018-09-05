@@ -55,7 +55,8 @@ library
                      parser-combinators >= 1.0.0,
                      text               >= 1.2.3.0,
                      time               >= 1.8.0.2,
-                     transformers       >= 0.5.5.0
+                     transformers       >= 0.5.5.0,
+                     transformers-either
 
   other-modules:
   exposed-modules:
@@ -67,20 +68,27 @@ library
                      Data.FIX.Parser
                      Data.FIX.ParserCombinators
                      Data.FIX.Message
-  ghc-options:       -Wall
+                     Data.FIX.Spec
+                     Data.FIX.Split
+  ghc-options:       -Wall -funbox-strict-fields -O2
   if flag(developer)
     ghc-prof-options: -auto-all
 
   if flag(with-fix40)
     exposed-modules: Data.FIX.Spec.FIX40
+    cpp-options: -D__FIX40__
   if flag(with-fix41)
     exposed-modules: Data.FIX.Spec.FIX41
+    cpp-options: -D__FIX41__
   if flag(with-fix42)
     exposed-modules: Data.FIX.Spec.FIX42
+    cpp-options: -D__FIX42__
   if flag(with-fix43)
     exposed-modules: Data.FIX.Spec.FIX43
+    cpp-options: -D__FIX43__
   if flag(with-fix44)
     exposed-modules: Data.FIX.Spec.FIX44
+    cpp-options: -D__FIX44__
 
 test-suite test
   type:              exitcode-stdio-1.0
@@ -113,7 +121,8 @@ test-suite test
                      dlist,
                      text,
                      time,
-                     transformers
+                     transformers,
+                     transformers-either
 
 benchmark bench
   type:              exitcode-stdio-1.0
@@ -136,4 +145,6 @@ benchmark bench
                      dlist,
                      text,
                      time,
-                     transformers
+                     transformers,
+                     transformers-either
+  ghc-options: -Wall -funbox-strict-fields -O2
