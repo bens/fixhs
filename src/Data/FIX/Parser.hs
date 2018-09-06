@@ -45,13 +45,12 @@ import Control.Applicative ((<$>), many)
 import Control.Monad (replicateM, when)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State
-import Data.ByteString (ByteString)
 import Data.IntMap (IntMap)
 import Test.QuickCheck (arbitrary)
 import Text.Printf (printf)
 import Text.Megaparsec ((<?>), runParser, takeP, try)
 
-import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString.Lazy as BS.Lazy
 import qualified Data.FIX.Message as FIX
 import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
@@ -108,55 +107,17 @@ groupP spec = do
         lenTag = gsLength spec
         sepTag = gsSeparator spec
 
--- | Match the next FIX message (only text) in the stream. The checksum is
--- validated.
-snarfMessageP :: Parser ByteString
-snarfMessageP = do
-    (hdrChksum, len) <- headerP <?> "header"
-    msg <- takeP Nothing len <?> "snarfing body"
-    let chksum = (hdrChksum + snd (FIX.checksum msg)) `mod` 256
-    -- after snarfing the message body, parse the checksum given
-    c <- checksumP <?> "checksum"
-    if chksum == c
-        then return msg
-        else fail $ printf "checksum is not valid: calculated as %d, expecting %d" chksum c
-    where
-        -- Parse header and return checksum and length.
-        -- A header always starts with the version tag (8)
-        -- followed by the length tag (9). Note: these 2 tags
-        -- are included in the checksum
-        headerP :: Parser (Int, Int)
-        headerP = do
-            let p8 = do
-                    (_, c)  <- FIX.checksum <$> Mega.string (C.pack "8=")
-                    (_, c') <- FIX.checksum <$> FIX.toString
-                    return (c + c')
-            let p9 = do
-                    (_, c)  <- FIX.checksum <$> Mega.string (C.pack "9=")
-                    (l, c') <- FIX.checksum <$> FIX.toString
-                    return (c + c', l)
-            c8      <- p8 <?> "8 (BeginString)"
-            (c9, l) <- p9 <?> "9 (BodyLength)"
-            let c = (c8 + c9 + 2) `mod` 256
-            return (c, FIX.toInt' l)
-        checksumP :: Parser Int
-        checksumP = Mega.string (C.pack "10=") >> FIX.toInt
-
 messageP :: FIXSpec -> Parser FIXMessage
 messageP spec = do
-    msg <- snarfMessageP <?> "snarfing message"
-    either (fail . show) return $ runParser psr "" msg
-  where
-    psr = do
-      FIXString msgType <- tagP tMsgType <?> "message type"
-      case Map.lookup msgType (fsMessages spec) of
-          Nothing ->
-              fail ("unknown message type: " ++ show msgType)
-          Just msgSpec -> do
-              hdr <- fst <$> tagsP (msHeader  msgSpec) <?> "header"
-              bdy <- fst <$> tagsP (msBody    msgSpec) <?> "body"
-              trl <- fst <$> tagsP (msTrailer msgSpec) <?> "trailer"
-              return (FIXMessage spec msgType hdr bdy trl)
+  FIXString msgType <- tagP tMsgType <?> "message type"
+  case Map.lookup msgType (fsMessages spec) of
+      Nothing ->
+          fail ("unknown message type: " ++ show msgType)
+      Just msgSpec -> do
+          hdr <- fst <$> tagsP (msHeader  msgSpec) <?> "header"
+          bdy <- fst <$> tagsP (msBody    msgSpec) <?> "body"
+          trl <- fst <$> tagsP (msTrailer msgSpec) <?> "trailer"
+          return (FIXMessage spec msgType hdr bdy trl)
 
 -- FIX value parsers
 toFIXInt                 = FIXInt                 <$> FIX.toInt

@@ -5,7 +5,7 @@ module Data.FIX.Common
     ( Parser, delimiter
     ) where
 
-import Data.ByteString (ByteString)
+import Data.ByteString.Lazy (ByteString)
 import Data.Void (Void)
 import Text.Megaparsec (Parsec)
 

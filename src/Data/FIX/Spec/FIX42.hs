@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 -- Module  : Data.FIX.Spec.FIX42
 -- License : LGPL-2.1
 
@@ -7,7 +9,7 @@ import Data.Functor ( (<$>) )
 import Data.IntMap (IntMap)
 import Test.QuickCheck
 
-import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString.Lazy as BS.Lazy
 import qualified Data.LookupTable as LT ( new, insert )
 
 import Data.FIX.Arbitrary
@@ -2823,7 +2825,7 @@ trailerFIX42 =
 mHeartbeat :: FIXMessageSpec
 mHeartbeat = FMSpec
    { msName = "Heartbeat"
-   , msType = C.pack "0"
+   , msType = "0"
    , msHeader = headerFIX42
    , msBody = mHeartbeatBody
    , msTrailer = trailerFIX42 }
@@ -2835,7 +2837,7 @@ mHeartbeat = FMSpec
 mTestRequest :: FIXMessageSpec
 mTestRequest = FMSpec
    { msName = "TestRequest"
-   , msType = C.pack "1"
+   , msType = "1"
    , msHeader = headerFIX42
    , msBody = mTestRequestBody
    , msTrailer = trailerFIX42 }
@@ -2847,7 +2849,7 @@ mTestRequest = FMSpec
 mResendRequest :: FIXMessageSpec
 mResendRequest = FMSpec
    { msName = "ResendRequest"
-   , msType = C.pack "2"
+   , msType = "2"
    , msHeader = headerFIX42
    , msBody = mResendRequestBody
    , msTrailer = trailerFIX42 }
@@ -2860,7 +2862,7 @@ mResendRequest = FMSpec
 mReject :: FIXMessageSpec
 mReject = FMSpec
    { msName = "Reject"
-   , msType = C.pack "3"
+   , msType = "3"
    , msHeader = headerFIX42
    , msBody = mRejectBody
    , msTrailer = trailerFIX42 }
@@ -2878,7 +2880,7 @@ mReject = FMSpec
 mSequenceReset :: FIXMessageSpec
 mSequenceReset = FMSpec
    { msName = "SequenceReset"
-   , msType = C.pack "4"
+   , msType = "4"
    , msHeader = headerFIX42
    , msBody = mSequenceResetBody
    , msTrailer = trailerFIX42 }
@@ -2891,7 +2893,7 @@ mSequenceReset = FMSpec
 mLogout :: FIXMessageSpec
 mLogout = FMSpec
    { msName = "Logout"
-   , msType = C.pack "5"
+   , msType = "5"
    , msHeader = headerFIX42
    , msBody = mLogoutBody
    , msTrailer = trailerFIX42 }
@@ -2905,7 +2907,7 @@ mLogout = FMSpec
 mIndicationofInterest :: FIXMessageSpec
 mIndicationofInterest = FMSpec
    { msName = "IndicationofInterest"
-   , msType = C.pack "6"
+   , msType = "6"
    , msHeader = headerFIX42
    , msBody = mIndicationofInterestBody
    , msTrailer = trailerFIX42 }
@@ -2985,7 +2987,7 @@ mIndicationofInterest = FMSpec
 mAdvertisement :: FIXMessageSpec
 mAdvertisement = FMSpec
    { msName = "Advertisement"
-   , msType = C.pack "7"
+   , msType = "7"
    , msHeader = headerFIX42
    , msBody = mAdvertisementBody
    , msTrailer = trailerFIX42 }
@@ -3030,7 +3032,7 @@ mAdvertisement = FMSpec
 mExecutionReport :: FIXMessageSpec
 mExecutionReport = FMSpec
    { msName = "ExecutionReport"
-   , msType = C.pack "8"
+   , msType = "8"
    , msHeader = headerFIX42
    , msBody = mExecutionReportBody
    , msTrailer = trailerFIX42 }
@@ -3151,7 +3153,7 @@ mExecutionReport = FMSpec
 mOrderCancelReject :: FIXMessageSpec
 mOrderCancelReject = FMSpec
    { msName = "OrderCancelReject"
-   , msType = C.pack "9"
+   , msType = "9"
    , msHeader = headerFIX42
    , msBody = mOrderCancelRejectBody
    , msTrailer = trailerFIX42 }
@@ -3177,7 +3179,7 @@ mOrderCancelReject = FMSpec
 mLogon :: FIXMessageSpec
 mLogon = FMSpec
    { msName = "Logon"
-   , msType = C.pack "A"
+   , msType = "A"
    , msHeader = headerFIX42
    , msBody = mLogonBody
    , msTrailer = trailerFIX42 }
@@ -3211,7 +3213,7 @@ mLogon = FMSpec
 mNews :: FIXMessageSpec
 mNews = FMSpec
    { msName = "News"
-   , msType = C.pack "B"
+   , msType = "B"
    , msHeader = headerFIX42
    , msBody = mNewsBody
    , msTrailer = trailerFIX42 }
@@ -3297,7 +3299,7 @@ mNews = FMSpec
 mEmail :: FIXMessageSpec
 mEmail = FMSpec
    { msName = "Email"
-   , msType = C.pack "C"
+   , msType = "C"
    , msHeader = headerFIX42
    , msBody = mEmailBody
    , msTrailer = trailerFIX42 }
@@ -3385,7 +3387,7 @@ mEmail = FMSpec
 mNewOrderSingle :: FIXMessageSpec
 mNewOrderSingle = FMSpec
    { msName = "NewOrderSingle"
-   , msType = C.pack "D"
+   , msType = "D"
    , msHeader = headerFIX42
    , msBody = mNewOrderSingleBody
    , msTrailer = trailerFIX42 }
@@ -3498,7 +3500,7 @@ mNewOrderSingle = FMSpec
 mNewOrderList :: FIXMessageSpec
 mNewOrderList = FMSpec
    { msName = "NewOrderList"
-   , msType = C.pack "E"
+   , msType = "E"
    , msHeader = headerFIX42
    , msBody = mNewOrderListBody
    , msTrailer = trailerFIX42 }
@@ -3640,7 +3642,7 @@ mNewOrderList = FMSpec
 mOrderCancelRequest :: FIXMessageSpec
 mOrderCancelRequest = FMSpec
    { msName = "OrderCancelRequest"
-   , msType = C.pack "F"
+   , msType = "F"
    , msHeader = headerFIX42
    , msBody = mOrderCancelRequestBody
    , msTrailer = trailerFIX42 }
@@ -3686,7 +3688,7 @@ mOrderCancelRequest = FMSpec
 mOrderCancelReplaceRequest :: FIXMessageSpec
 mOrderCancelReplaceRequest = FMSpec
    { msName = "OrderCancelReplaceRequest"
-   , msType = C.pack "G"
+   , msType = "G"
    , msHeader = headerFIX42
    , msBody = mOrderCancelReplaceRequestBody
    , msTrailer = trailerFIX42 }
@@ -3798,7 +3800,7 @@ mOrderCancelReplaceRequest = FMSpec
 mOrderStatusRequest :: FIXMessageSpec
 mOrderStatusRequest = FMSpec
    { msName = "OrderStatusRequest"
-   , msType = C.pack "H"
+   , msType = "H"
    , msHeader = headerFIX42
    , msBody = mOrderStatusRequestBody
    , msTrailer = trailerFIX42 }
@@ -3834,7 +3836,7 @@ mOrderStatusRequest = FMSpec
 mAllocation :: FIXMessageSpec
 mAllocation = FMSpec
    { msName = "Allocation"
-   , msType = C.pack "J"
+   , msType = "J"
    , msHeader = headerFIX42
    , msBody = mAllocationBody
    , msTrailer = trailerFIX42 }
@@ -3980,7 +3982,7 @@ mAllocation = FMSpec
 mListCancelRequest :: FIXMessageSpec
 mListCancelRequest = FMSpec
    { msName = "ListCancelRequest"
-   , msType = C.pack "K"
+   , msType = "K"
    , msHeader = headerFIX42
    , msBody = mListCancelRequestBody
    , msTrailer = trailerFIX42 }
@@ -3996,7 +3998,7 @@ mListCancelRequest = FMSpec
 mListExecute :: FIXMessageSpec
 mListExecute = FMSpec
    { msName = "ListExecute"
-   , msType = C.pack "L"
+   , msType = "L"
    , msHeader = headerFIX42
    , msBody = mListExecuteBody
    , msTrailer = trailerFIX42 }
@@ -4014,7 +4016,7 @@ mListExecute = FMSpec
 mListStatusRequest :: FIXMessageSpec
 mListStatusRequest = FMSpec
    { msName = "ListStatusRequest"
-   , msType = C.pack "M"
+   , msType = "M"
    , msHeader = headerFIX42
    , msBody = mListStatusRequestBody
    , msTrailer = trailerFIX42 }
@@ -4029,7 +4031,7 @@ mListStatusRequest = FMSpec
 mListStatus :: FIXMessageSpec
 mListStatus = FMSpec
    { msName = "ListStatus"
-   , msType = C.pack "N"
+   , msType = "N"
    , msHeader = headerFIX42
    , msBody = mListStatusBody
    , msTrailer = trailerFIX42 }
@@ -4075,7 +4077,7 @@ mListStatus = FMSpec
 mAllocationACK :: FIXMessageSpec
 mAllocationACK = FMSpec
    { msName = "AllocationACK"
-   , msType = C.pack "P"
+   , msType = "P"
    , msHeader = headerFIX42
    , msBody = mAllocationACKBody
    , msTrailer = trailerFIX42 }
@@ -4096,7 +4098,7 @@ mAllocationACK = FMSpec
 mDontKnowTrade :: FIXMessageSpec
 mDontKnowTrade = FMSpec
    { msName = "DontKnowTrade"
-   , msType = C.pack "Q"
+   , msType = "Q"
    , msHeader = headerFIX42
    , msBody = mDontKnowTradeBody
    , msTrailer = trailerFIX42 }
@@ -4137,7 +4139,7 @@ mDontKnowTrade = FMSpec
 mQuoteRequest :: FIXMessageSpec
 mQuoteRequest = FMSpec
    { msName = "QuoteRequest"
-   , msType = C.pack "R"
+   , msType = "R"
    , msHeader = headerFIX42
    , msBody = mQuoteRequestBody
    , msTrailer = trailerFIX42 }
@@ -4195,7 +4197,7 @@ mQuoteRequest = FMSpec
 mQuote :: FIXMessageSpec
 mQuote = FMSpec
    { msName = "Quote"
-   , msType = C.pack "S"
+   , msType = "S"
    , msHeader = headerFIX42
    , msBody = mQuoteBody
    , msTrailer = trailerFIX42 }
@@ -4244,7 +4246,7 @@ mQuote = FMSpec
 mSettlementInstructions :: FIXMessageSpec
 mSettlementInstructions = FMSpec
    { msName = "SettlementInstructions"
-   , msType = C.pack "T"
+   , msType = "T"
    , msHeader = headerFIX42
    , msBody = mSettlementInstructionsBody
    , msTrailer = trailerFIX42 }
@@ -4291,7 +4293,7 @@ mSettlementInstructions = FMSpec
 mMarketDataRequest :: FIXMessageSpec
 mMarketDataRequest = FMSpec
    { msName = "MarketDataRequest"
-   , msType = C.pack "V"
+   , msType = "V"
    , msHeader = headerFIX42
    , msBody = mMarketDataRequestBody
    , msTrailer = trailerFIX42 }
@@ -4358,7 +4360,7 @@ mMarketDataRequest = FMSpec
 mMarketDataSnapshotFullRefresh :: FIXMessageSpec
 mMarketDataSnapshotFullRefresh = FMSpec
    { msName = "MarketDataSnapshotFullRefresh"
-   , msType = C.pack "W"
+   , msType = "W"
    , msHeader = headerFIX42
    , msBody = mMarketDataSnapshotFullRefreshBody
    , msTrailer = trailerFIX42 }
@@ -4437,7 +4439,7 @@ mMarketDataSnapshotFullRefresh = FMSpec
 mMarketDataIncrementalRefresh :: FIXMessageSpec
 mMarketDataIncrementalRefresh = FMSpec
    { msName = "MarketDataIncrementalRefresh"
-   , msType = C.pack "X"
+   , msType = "X"
    , msHeader = headerFIX42
    , msBody = mMarketDataIncrementalRefreshBody
    , msTrailer = trailerFIX42 }
@@ -4520,7 +4522,7 @@ mMarketDataIncrementalRefresh = FMSpec
 mMarketDataRequestReject :: FIXMessageSpec
 mMarketDataRequestReject = FMSpec
    { msName = "MarketDataRequestReject"
-   , msType = C.pack "Y"
+   , msType = "Y"
    , msHeader = headerFIX42
    , msBody = mMarketDataRequestRejectBody
    , msTrailer = trailerFIX42 }
@@ -4536,7 +4538,7 @@ mMarketDataRequestReject = FMSpec
 mQuoteCancel :: FIXMessageSpec
 mQuoteCancel = FMSpec
    { msName = "QuoteCancel"
-   , msType = C.pack "Z"
+   , msType = "Z"
    , msHeader = headerFIX42
    , msBody = mQuoteCancelBody
    , msTrailer = trailerFIX42 }
@@ -4587,7 +4589,7 @@ mQuoteCancel = FMSpec
 mQuoteStatusRequest :: FIXMessageSpec
 mQuoteStatusRequest = FMSpec
    { msName = "QuoteStatusRequest"
-   , msType = C.pack "a"
+   , msType = "a"
    , msHeader = headerFIX42
    , msBody = mQuoteStatusRequestBody
    , msTrailer = trailerFIX42 }
@@ -4620,7 +4622,7 @@ mQuoteStatusRequest = FMSpec
 mQuoteAcknowledgement :: FIXMessageSpec
 mQuoteAcknowledgement = FMSpec
    { msName = "QuoteAcknowledgement"
-   , msType = C.pack "b"
+   , msType = "b"
    , msHeader = headerFIX42
    , msBody = mQuoteAcknowledgementBody
    , msTrailer = trailerFIX42 }
@@ -4710,7 +4712,7 @@ mQuoteAcknowledgement = FMSpec
 mSecurityDefinitionRequest :: FIXMessageSpec
 mSecurityDefinitionRequest = FMSpec
    { msName = "SecurityDefinitionRequest"
-   , msType = C.pack "c"
+   , msType = "c"
    , msHeader = headerFIX42
    , msBody = mSecurityDefinitionRequestBody
    , msTrailer = trailerFIX42 }
@@ -4784,7 +4786,7 @@ mSecurityDefinitionRequest = FMSpec
 mSecurityDefinition :: FIXMessageSpec
 mSecurityDefinition = FMSpec
    { msName = "SecurityDefinition"
-   , msType = C.pack "d"
+   , msType = "d"
    , msHeader = headerFIX42
    , msBody = mSecurityDefinitionBody
    , msTrailer = trailerFIX42 }
@@ -4860,7 +4862,7 @@ mSecurityDefinition = FMSpec
 mSecurityStatusRequest :: FIXMessageSpec
 mSecurityStatusRequest = FMSpec
    { msName = "SecurityStatusRequest"
-   , msType = C.pack "e"
+   , msType = "e"
    , msHeader = headerFIX42
    , msBody = mSecurityStatusRequestBody
    , msTrailer = trailerFIX42 }
@@ -4894,7 +4896,7 @@ mSecurityStatusRequest = FMSpec
 mSecurityStatus :: FIXMessageSpec
 mSecurityStatus = FMSpec
    { msName = "SecurityStatus"
-   , msType = C.pack "f"
+   , msType = "f"
    , msHeader = headerFIX42
    , msBody = mSecurityStatusBody
    , msTrailer = trailerFIX42 }
@@ -4941,7 +4943,7 @@ mSecurityStatus = FMSpec
 mTradingSessionStatusRequest :: FIXMessageSpec
 mTradingSessionStatusRequest = FMSpec
    { msName = "TradingSessionStatusRequest"
-   , msType = C.pack "g"
+   , msType = "g"
    , msHeader = headerFIX42
    , msBody = mTradingSessionStatusRequestBody
    , msTrailer = trailerFIX42 }
@@ -4957,7 +4959,7 @@ mTradingSessionStatusRequest = FMSpec
 mTradingSessionStatus :: FIXMessageSpec
 mTradingSessionStatus = FMSpec
    { msName = "TradingSessionStatus"
-   , msType = C.pack "h"
+   , msType = "h"
    , msHeader = headerFIX42
    , msBody = mTradingSessionStatusBody
    , msTrailer = trailerFIX42 }
@@ -4983,7 +4985,7 @@ mTradingSessionStatus = FMSpec
 mMassQuote :: FIXMessageSpec
 mMassQuote = FMSpec
    { msName = "MassQuote"
-   , msType = C.pack "i"
+   , msType = "i"
    , msHeader = headerFIX42
    , msBody = mMassQuoteBody
    , msTrailer = trailerFIX42 }
@@ -5087,7 +5089,7 @@ mMassQuote = FMSpec
 mBusinessMessageReject :: FIXMessageSpec
 mBusinessMessageReject = FMSpec
    { msName = "BusinessMessageReject"
-   , msType = C.pack "j"
+   , msType = "j"
    , msHeader = headerFIX42
    , msBody = mBusinessMessageRejectBody
    , msTrailer = trailerFIX42 }
@@ -5105,7 +5107,7 @@ mBusinessMessageReject = FMSpec
 mBidRequest :: FIXMessageSpec
 mBidRequest = FMSpec
    { msName = "BidRequest"
-   , msType = C.pack "k"
+   , msType = "k"
    , msHeader = headerFIX42
    , msBody = mBidRequestBody
    , msTrailer = trailerFIX42 }
@@ -5190,7 +5192,7 @@ mBidRequest = FMSpec
 mBidResponse :: FIXMessageSpec
 mBidResponse = FMSpec
    { msName = "BidResponse"
-   , msType = C.pack "l"
+   , msType = "l"
    , msHeader = headerFIX42
    , msBody = mBidResponseBody
    , msTrailer = trailerFIX42 }
@@ -5233,7 +5235,7 @@ mBidResponse = FMSpec
 mListStrikePrice :: FIXMessageSpec
 mListStrikePrice = FMSpec
    { msName = "ListStrikePrice"
-   , msType = C.pack "m"
+   , msType = "m"
    , msHeader = headerFIX42
    , msBody = mListStrikePriceBody
    , msTrailer = trailerFIX42 }

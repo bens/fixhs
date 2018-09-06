@@ -18,13 +18,14 @@ module Data.FIX.Message
     ) where
 
 import Control.DeepSeq (NFData(rnf))
-import Data.ByteString (ByteString)
 import Data.Char (ord)
 import Data.IntMap (IntMap)
 import Data.Map (Map)
 import Data.Time.Calendar (Day)
 import Data.Time.Clock (UTCTime (..), DiffTime)
 import Test.QuickCheck (Gen)
+
+import qualified Data.ByteString.Lazy as BS.Lazy
 
 import Data.Coparser (BuilderLike (..), foldl')
 import Data.FIX.Common (Parser, delimiter)
@@ -57,10 +58,10 @@ data FIXValue
     | FIXDouble Double
     | FIXChar Char
     | FIXBool Bool
-    | FIXString ByteString
-    | FIXData ByteString
+    | FIXString BS.Lazy.ByteString
+    | FIXData BS.Lazy.ByteString
       -- FIXME: seems better to contain a list of bytestrings
-    | FIXMultipleValueString ByteString
+    | FIXMultipleValueString BS.Lazy.ByteString
     | FIXTimestamp UTCTime
     | FIXTimeOnly DiffTime
     | FIXDateOnly Day
@@ -83,7 +84,7 @@ instance NFData FIXValue where
 
 data FIXMessage = FIXMessage
     { mContext :: FIXSpec
-    , mType    :: ByteString
+    , mType    :: BS.Lazy.ByteString
     , mHeader  :: IntMap FIXValue
     , mBody    :: IntMap FIXValue
     , mTrailer :: IntMap FIXValue
@@ -111,14 +112,14 @@ instance NFData FIXMessage where
 
 data FIXMessageSpec = FMSpec
     { msName    :: String
-    , msType    :: ByteString
+    , msType    :: BS.Lazy.ByteString
     , msHeader  :: IntMap FIXTag
     , msBody    :: IntMap FIXTag
     , msTrailer :: IntMap FIXTag
     } deriving (Eq, Show)
 
 type FIXMessageSpecs
-    = Map ByteString FIXMessageSpec
+    = Map BS.Lazy.ByteString FIXMessageSpec
 
 data FIXSpec = FSpec
     { fsVersion  :: String          -- ^ FIX version

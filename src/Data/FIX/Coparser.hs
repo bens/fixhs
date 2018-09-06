@@ -14,7 +14,7 @@ import Data.Time.Calendar (Day, toGregorian)
 import Data.Time.Clock (DiffTime, UTCTime (..), diffTimeToPicoseconds)
 import Prelude hiding (concat, length)
 
-import qualified Data.ByteString.Char8 as BS
+import qualified Data.ByteString.Lazy as BS.Lazy
 
 import Data.FIX.Message
 import Data.FIX.Parser (tBeginString, tBodyLength, tCheckSum, tMsgType)
@@ -64,7 +64,7 @@ instance Coparser FIXMessage where
             msg     = header <> msgLen <> (FIX.delimiter `cons` body)
             header  = tag08 <> cons '=' (pack version `snoc` FIX.delimiter)
             msgLen  = tag09 <> cons '=' (decimal $ length body)
-            msgType = tag35 <> cons '=' (pack $ BS.unpack $ mType m)
+            msgType = tag35 <> cons '=' (pack $ unpack $ mType m)
             chksum  = tag10 <> cons '=' (paddedChecksum msg `snoc` FIX.delimiter)
 
             body = msgType
@@ -116,13 +116,13 @@ instance Coparser FIXValue where
     coparse (FIXBool a)
         | a = singleton 'Y'
         | otherwise = singleton 'N'
-    coparse (FIXString a) = pack $ BS.unpack a
-    coparse (FIXMultipleValueString a) = pack $ BS.unpack a
+    coparse (FIXString a) = pack $ unpack a
+    coparse (FIXMultipleValueString a) = pack $ unpack a
     coparse (FIXTimestamp a) = fromFIXTimestamp a
     coparse (FIXTimeOnly a) = fromFIXTimeOnly a
     coparse (FIXDateOnly a) = fromFIXDateOnly a
     coparse (FIXMonthYear a) = fromFIXMonthYear a
-    coparse (FIXData a) = pack $ BS.unpack a
+    coparse (FIXData a) = pack $ unpack a
     coparse (FIXGroup n ls) =
             decimal n `snoc` FIX.delimiter
         <> concat (map coparse ls)

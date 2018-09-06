@@ -12,15 +12,15 @@ module Data.Coparser
     ) where
 
 import Data.Bits.Utils (w82c)
-import Data.ByteString (ByteString)
 import Data.Monoid (mappend, mconcat)
 import GHC.Float (showFloat)
 import Data.String (IsString(..))
 
-import qualified Data.ByteString as B
-import qualified Data.ByteString.Char8 as C
-import qualified Data.ByteString.Lazy.Char8 as BL
-import qualified Data.ByteString.Builder as BB
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Char8 as BS.C8
+import qualified Data.ByteString.Lazy as BS.Lazy
+import qualified Data.ByteString.Lazy.Char8 as BS.Lazy.C8
+import qualified Data.ByteString.Builder as BS.B
 import qualified Data.DList as DL
 import qualified Data.Foldable as P
 import qualified Data.List as L
@@ -63,16 +63,27 @@ instance BuilderLike String where
     foldl' = P.foldl'
     foldl = P.foldl
 
-instance BuilderLike ByteString where
-    unpack = C.unpack
-    singleton = C.singleton
-    append = B.append
-    cons = C.cons
-    snoc = C.snoc
-    concat = B.concat
-    length = B.length
-    foldl' f = let f' !x !w = {-# SCC "Urvli" #-} w82c w `seq` x `seq` f x (w82c w) in B.foldl' f'
-    foldl f = let  f' x =  f x . w82c in B.foldl f'
+instance BuilderLike BS.ByteString where
+    unpack = BS.C8.unpack
+    singleton = BS.C8.singleton
+    append = BS.append
+    cons = BS.C8.cons
+    snoc = BS.C8.snoc
+    concat = BS.concat
+    length = BS.length
+    foldl' f = let f' !x !w = {-# SCC "Urvli" #-} w82c w `seq` x `seq` f x (w82c w) in BS.foldl' f'
+    foldl f = let  f' x =  f x . w82c in BS.foldl f'
+
+instance BuilderLike BS.Lazy.ByteString where
+    unpack = BS.Lazy.C8.unpack
+    singleton = BS.Lazy.C8.singleton
+    append = BS.Lazy.append
+    cons = BS.Lazy.C8.cons
+    snoc = BS.Lazy.C8.snoc
+    concat = BS.Lazy.concat
+    length = fromIntegral . BS.Lazy.length
+    foldl' f = let f' !x !w = {-# SCC "Urvli" #-} w82c w `seq` x `seq` f x (w82c w) in BS.Lazy.foldl' f'
+    foldl f = let  f' x =  f x . w82c in BS.Lazy.foldl f'
 
 instance BuilderLike (DL.DList Char) where
     unpack = DL.toList
@@ -82,13 +93,13 @@ instance BuilderLike (DL.DList Char) where
     snoc = DL.snoc
     concat = DL.concat
 
-instance BuilderLike BB.Builder where
-    pack = BB.stringUtf8
-    unpack = BL.unpack . BB.toLazyByteString
-    singleton = BB.byteString . C.singleton
+instance BuilderLike BS.B.Builder where
+    pack = BS.B.stringUtf8
+    unpack = BS.Lazy.C8.unpack . BS.B.toLazyByteString
+    singleton = BS.B.byteString . BS.C8.singleton
     append = mappend
     concat = mconcat
-    cons c b = BB.charUtf8 c <> b
+    cons c b = BS.B.charUtf8 c <> b
 
 instance BuilderLike LazyTextB.Builder where
     unpack = LazyText.unpack . LazyTextB.toLazyText

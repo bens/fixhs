@@ -19,7 +19,6 @@ module Data.FIX.Arbitrary
     )
     where
 
-import Data.ByteString (ByteString)
 import Data.Char (isAlphaNum, isAscii)
 import Data.Functor ((<$>))
 import Data.IntMap (IntMap)
@@ -27,7 +26,8 @@ import Data.Time.Calendar (Day, addDays, fromGregorian, isLeapYear)
 import Data.Time.Clock (DiffTime, UTCTime (..), picosecondsToDiffTime)
 import Test.QuickCheck (Gen, arbitrary, shrinkList, suchThat)
 
-import qualified Data.ByteString.Char8 as C
+import qualified Data.ByteString.Lazy as BS.Lazy
+import qualified Data.ByteString.Lazy.Char8 as BS.Lazy.C8
 import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
 import qualified Test.QuickCheck as QC
@@ -85,10 +85,10 @@ shrinkFIXMessage msg = FIXMessage (mContext msg) (mType msg)
 
 --- We generate a random string out of digits and numbers generated string has
 --- length at least 1 and most <max>
-genByteString :: Gen ByteString
+genByteString :: Gen BS.Lazy.ByteString
 genByteString = do
     l <- QC.choose (1, maxLen)
-    C.pack <$> QC.vectorOf l (arbitrary `suchThat` isGoodChar)
+    BS.Lazy.C8.pack <$> QC.vectorOf l (arbitrary `suchThat` isGoodChar)
     where
         isGoodChar c = isAlphaNum c && isAscii c
         maxLen = 15

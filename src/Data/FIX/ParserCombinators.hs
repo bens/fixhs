@@ -32,12 +32,12 @@ import Data.List (foldl')
 import Data.Time.Calendar (Day, fromGregorianValid)
 import Data.Time.Clock (DiffTime, UTCTime (..), picosecondsToDiffTime)
 import Text.Megaparsec ((<?>), takeWhile1P)
+
+import qualified Data.ByteString.Lazy as BS.Lazy
 import qualified Text.Megaparsec.Byte as Mega
 import qualified Text.Megaparsec.Byte.Lexer as Mega
 
 import Data.FIX.Common (Parser)
-
-import qualified Data.ByteString as BS
 
 pChar :: Char -> Parser Char
 pChar c = c <$ Mega.char (fromIntegral (ord c))
@@ -51,19 +51,19 @@ toDouble = (<?> "float value") $ delimited $ Mega.signed (pure ()) $ do
     (!m, !e) <- join (((extract_decimals <$> snarfTillDelim) <$ pChar '.') <|> pure (pure (0, 1)))
     return $! fromIntegral a + fromIntegral m / (10^e)
     where
-        extract_decimals :: BS.ByteString -> (Int, Int)
-        extract_decimals = BS.foldl' helper (0, 0)
+        extract_decimals :: BS.Lazy.ByteString -> (Int, Int)
+        extract_decimals = BS.Lazy.foldl' helper (0, 0)
             where
                 helper (!m, !e) c = (m * 10 + w2d c, succ e)
 
-snarfTillDelim :: Parser BS.ByteString
+snarfTillDelim :: Parser BS.Lazy.ByteString
 snarfTillDelim = takeWhile1P Nothing (/= 0x01)
 
 parseIntTill :: Char -> Parser Int
 parseIntTill c = Mega.signed (pure ()) Mega.decimal <* Mega.char (fromIntegral (ord c))
 
-toInt' :: BS.ByteString -> Int
-toInt' = BS.foldl' (\r c -> r * 10 + w2d c) 0
+toInt' :: BS.Lazy.ByteString -> Int
+toInt' = BS.Lazy.foldl' (\r c -> r * 10 + w2d c) 0
 
 toInt :: Parser Int
 toInt = delimited (Mega.signed (pure ()) Mega.decimal) <?> "int value"
@@ -71,7 +71,7 @@ toInt = delimited (Mega.signed (pure ()) Mega.decimal) <?> "int value"
 toChar :: Parser Char
 toChar = chr . fromIntegral <$> (delimited Mega.anyChar <?> "char value")
 
-toString :: Parser BS.ByteString
+toString :: Parser BS.Lazy.ByteString
 toString = delimited snarfTillDelim <?> "string value"
 
 toTag :: Parser Int
