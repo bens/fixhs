@@ -9,7 +9,6 @@ import Data.Functor ( (<$>) )
 import Data.IntMap (IntMap)
 import Test.QuickCheck
 
-import qualified Data.ByteString.Lazy as BS.Lazy
 import qualified Data.LookupTable as LT ( new, insert )
 
 import Data.FIX.Arbitrary

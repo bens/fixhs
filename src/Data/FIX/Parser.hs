@@ -47,14 +47,10 @@ import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State
 import Data.IntMap (IntMap)
 import Test.QuickCheck (arbitrary)
-import Text.Printf (printf)
-import Text.Megaparsec ((<?>), runParser, takeP, try)
+import Text.Megaparsec ((<?>), try)
 
-import qualified Data.ByteString.Lazy as BS.Lazy
-import qualified Data.FIX.Message as FIX
 import qualified Data.IntMap as IntMap
 import qualified Data.Map as Map
-import qualified Text.Megaparsec.Byte as Mega
 
 import Data.FIX.Arbitrary (genByteString)
 import Data.FIX.Common (Parser)

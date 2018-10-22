@@ -14,8 +14,6 @@ import Data.Time.Calendar (Day, toGregorian)
 import Data.Time.Clock (DiffTime, UTCTime (..), diffTimeToPicoseconds)
 import Prelude hiding (concat, length)
 
-import qualified Data.ByteString.Lazy as BS.Lazy
-
 import Data.FIX.Message
 import Data.FIX.Parser (tBeginString, tBodyLength, tCheckSum, tMsgType)
 
