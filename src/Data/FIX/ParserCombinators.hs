@@ -34,6 +34,7 @@ import Data.Time.Clock (DiffTime, UTCTime (..), picosecondsToDiffTime)
 import Text.Megaparsec ((<?>), takeWhile1P)
 
 import qualified Data.ByteString.Lazy as BS.Lazy
+import qualified Text.Megaparsec as Mega
 import qualified Text.Megaparsec.Byte as Mega
 import qualified Text.Megaparsec.Byte.Lexer as Mega
 
@@ -69,7 +70,7 @@ toInt :: Parser Int
 toInt = delimited (Mega.signed (pure ()) Mega.decimal) <?> "int value"
 
 toChar :: Parser Char
-toChar = chr . fromIntegral <$> (delimited Mega.anyChar <?> "char value")
+toChar = chr . fromIntegral <$> (delimited Mega.anySingle <?> "char value")
 
 toString :: Parser BS.Lazy.ByteString
 toString = delimited snarfTillDelim <?> "string value"
@@ -125,7 +126,7 @@ toMonthYear = (<?> "month-year") $ delimited $ do
   maybe (fail "invalid date") return $ fromGregorianValid year mon 1
 
 skipToken :: Parser ()
-skipToken = skipMany (Mega.notChar 0x01)
+skipToken = skipMany (Mega.anySingleBut 0x01)
 
 nDigits :: Int -> Parser Int
 nDigits n = (<?> show n ++ " digits") $ do
