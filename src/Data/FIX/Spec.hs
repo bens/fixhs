@@ -1,10 +1,13 @@
-{-# LANGUAGE CPP        #-}
-{-# LANGUAGE GADTs      #-}
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE CPP               #-}
+{-# LANGUAGE EmptyCase         #-}
+{-# LANGUAGE EmptyDataDeriving #-}
+{-# LANGUAGE GADTs             #-}
+{-# LANGUAGE LambdaCase        #-}
 
 module Data.FIX.Spec where
 
 import Data.FIX.Message (FIXSpec(fsVersion))
+
 #ifdef __FIX40__
 import Data.FIX.Spec.FIX40 (fix40)
 #endif
@@ -37,7 +40,9 @@ data FIXVersion where
 #ifdef __FIX44__
   FIX44 :: FIXVersion
 #endif
+#ifdef __HAS_FIX__
   deriving (Eq, Ord, Show)
+#endif
 
 fixSpec :: FIXVersion -> FIXSpec
 fixSpec = \case

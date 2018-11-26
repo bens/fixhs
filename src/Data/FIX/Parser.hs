@@ -41,23 +41,22 @@ module Data.FIX.Parser
     , tagsP
     ) where
 
-import Control.Applicative ((<$>), many)
-import Control.Monad (replicateM, when)
+import Control.Applicative       (many, (<$>))
+import Control.Monad             (replicateM, when)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State
-import Data.IntMap (IntMap)
-import Test.QuickCheck (arbitrary)
-import Text.Megaparsec ((<?>), try)
+import Data.IntMap               (IntMap)
+import Test.QuickCheck           (arbitrary)
+import Text.Megaparsec           (try, (<?>))
 
 import qualified Data.IntMap as IntMap
-import qualified Data.Map as Map
+import qualified Data.Map    as Map
 
 import Data.FIX.Arbitrary (genByteString)
-import Data.FIX.Common (Parser)
+import Data.FIX.Common    (Parser)
 import Data.FIX.Message
 
 import qualified Data.FIX.ParserCombinators as FIX
-
 
 -- parse a specific tag and its value
 tagP :: FIXTag -> Parser FIXValue
@@ -93,7 +92,7 @@ groupP spec = do
     nTag <- tparser lenTag <?> "group length"
     case nTag of
         FIXInt n -> FIXGroup n <$> replicateM n submsg
-        _ -> fail ("failed to parse group: " ++ show (tnum lenTag))
+        _        -> fail ("failed to parse group: " ++ show (tnum lenTag))
     where
         submsg :: Parser FIXGroupElement
         submsg = do
